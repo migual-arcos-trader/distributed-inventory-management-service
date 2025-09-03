@@ -4,10 +4,18 @@ import com.meli.distributed_inventory_management_service.domain.model.InventoryI
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import org.springframework.dao.OptimisticLockingFailureException;
 
-@Mapper(componentModel = "spring")
+import java.util.Objects;
+
+@Mapper(
+        componentModel = "spring",
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL
+)
 public interface InventoryMapper {
 
     InventoryMapper INSTANCE = Mappers.getMapper(InventoryMapper.class);
@@ -19,6 +27,9 @@ public interface InventoryMapper {
     InventoryItem toDomain(InventoryEntity entity);
 
     default InventoryItem toDomainWithVersion(InventoryEntity entity, Long expectedVersion) {
+        Objects.requireNonNull(entity, "InventoryEntity cannot be null");
+        Objects.requireNonNull(expectedVersion, "Expected version cannot be null");
+
         if (!entity.getVersion().equals(expectedVersion)) {
             throw new OptimisticLockingFailureException(
                     "Version mismatch. Expected: " + expectedVersion +
