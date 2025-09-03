@@ -16,6 +16,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static com.meli.distributed_inventory_management_service.domain.model.InventoryItemMother.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -61,10 +63,11 @@ class InventoryServiceTest {
     @DisplayName("Should create new item when item does not exist")
     void shouldCreateNewItemWhenNotExists() {
         // Arrange
-        when(inventoryRepository.findByProductAndStore(any(), any()))
-                .thenReturn(Mono.empty());
-        when(inventoryRepository.save(any()))
-                .thenReturn(Mono.just(existingItem));
+        InventoryItem newItem = newItem();
+        InventoryItem updatedNewItem = updatedNewItem();
+        when(inventoryRepository.findByProductAndStore(any(), any())).thenReturn(Mono.empty());
+        when(inventoryRepository.save(any(InventoryItem.class))).thenReturn(Mono.just(newItem));
+        when(inventoryRepository.updateWithVersionCheck(any(InventoryItem.class), eq(0L))).thenReturn(Mono.just(updatedNewItem));
 
         // Act
         Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
@@ -72,10 +75,16 @@ class InventoryServiceTest {
 
         // Assert
         StepVerifier.create(result)
-                .expectNext(existingItem)
+                .assertNext(item -> {
+                    assertNotNull(item);
+                    assertEquals(50, item.getCurrentStock());
+                    assertEquals(1L, item.getVersion());
+                })
                 .verifyComplete();
 
+        verify(inventoryRepository).findByProductAndStore("prod-1", "store-1");
         verify(inventoryRepository).save(any(InventoryItem.class));
+        verify(inventoryRepository).updateWithVersionCheck(any(InventoryItem.class), eq(0L));
     }
 
     @Test

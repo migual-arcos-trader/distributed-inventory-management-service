@@ -36,7 +36,7 @@ public class InventoryService {
     public Mono<InventoryItem> updateStockWithRetry(String productId, String storeId,
                                                     Integer quantity, UpdateType updateType) {
         return inventoryRepository.findByProductAndStore(productId, storeId)
-                .switchIfEmpty(createNewInventoryItem(productId, storeId))
+                .switchIfEmpty(Mono.defer(() -> createNewInventoryItem(productId, storeId)))
                 .flatMap(existingItem -> existingItem.updateStock(quantity, updateType)
                         .flatMap(updatedItem -> inventoryRepository.updateWithVersionCheck(updatedItem, existingItem.getVersion())
                                 .onErrorMap(OptimisticLockingFailureException.class, ex ->

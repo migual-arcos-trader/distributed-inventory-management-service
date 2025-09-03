@@ -12,6 +12,10 @@ public class InventoryItemMother {
     public static final Integer DEFAULT_MIN_STOCK = 5;
     public static final Integer DEFAULT_MAX_STOCK = 200;
     public static final Long DEFAULT_VERSION = 1L;
+    public static final Long ZERO_VERSION = 0L;
+    public static final Integer MAXIMUM_STOCK = 0;
+    public static final Integer UPDATE_STOCK = 50;
+    public static final Integer WITHOUT_STOCK = 0;
 
     public static InventoryItem.InventoryItemBuilder basic() {
         return InventoryItem.builder()
@@ -39,6 +43,32 @@ public class InventoryItemMother {
 
     public static InventoryItem withVersion(Long version) {
         return basic().version(version).build();
+    }
+
+    public static InventoryItem newItem() {
+        return InventoryItem.builder()
+                .productId(DEFAULT_PRODUCT_ID)
+                .storeId(DEFAULT_STORE_ID)
+                .currentStock(WITHOUT_STOCK)
+                .reservedStock(WITHOUT_STOCK)
+                .minimumStockLevel(WITHOUT_STOCK)
+                .maximumStockLevel(MAXIMUM_STOCK)
+                .lastUpdated(java.time.LocalDateTime.now())
+                .version(ZERO_VERSION)
+                .build();
+    }
+
+    public static InventoryItem updatedNewItem() {
+        return InventoryItem.builder()
+                .productId(DEFAULT_PRODUCT_ID)
+                .storeId(DEFAULT_STORE_ID)
+                .currentStock(UPDATE_STOCK)
+                .reservedStock(WITHOUT_STOCK)
+                .minimumStockLevel(WITHOUT_STOCK)
+                .maximumStockLevel(MAXIMUM_STOCK)
+                .lastUpdated(LocalDateTime.now())
+                .version(DEFAULT_VERSION)
+                .build();
     }
 
 }
