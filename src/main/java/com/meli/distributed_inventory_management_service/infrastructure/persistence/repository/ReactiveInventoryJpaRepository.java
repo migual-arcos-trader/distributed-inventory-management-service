@@ -7,6 +7,7 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 
+
 public interface ReactiveInventoryJpaRepository extends ReactiveCrudRepository<InventoryEntity, String> {
 
     Mono<InventoryEntity> findByProductIdAndStoreId(String productId, String storeId);

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Value
 @Builder
+
 public class InventoryItem {
 
     public static final int MIN_AVAILABLE_STOCK = 0;

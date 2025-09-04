@@ -2,6 +2,7 @@ package com.meli.distributed_inventory_management_service.domain.exception;
 
 import lombok.Getter;
 
+
 @Getter
 public class InventoryException extends RuntimeException {
     private final String errorCode;

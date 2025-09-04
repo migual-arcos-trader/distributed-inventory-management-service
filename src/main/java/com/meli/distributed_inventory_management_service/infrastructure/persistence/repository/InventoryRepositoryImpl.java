@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+
 @RequiredArgsConstructor
 public class InventoryRepositoryImpl implements InventoryRepository {
 

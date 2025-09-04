@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Value
 @Builder
+
 public class InventoryUpdateEvent {
 
     String eventId;

@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @RequiredArgsConstructor
+
 public class SpringDataInventoryRepository implements InventoryRepository {
 
     private final ReactiveInventoryJpaRepository jpaRepository;
