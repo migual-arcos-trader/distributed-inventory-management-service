@@ -1,9 +1,11 @@
 package com.meli.distributed_inventory_management_service.infrastructure.persistence.repository;
 
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
+import com.meli.distributed_inventory_management_service.domain.model.InventoryItemMother;
 import com.meli.distributed_inventory_management_service.infrastructure.config.TestContainersConfig;
 import com.meli.distributed_inventory_management_service.infrastructure.config.TestMapperConfig;
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntity;
+import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntityMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,6 @@ import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,32 +42,20 @@ class SpringDataInventoryRepositoryIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        jpaRepository.deleteAll().block(Duration.ofSeconds(5));
+        jpaRepository.deleteAll().block(Duration.ofSeconds(IntegrationTestsConstants.TEST_TIMEOUT_SECONDS));
 
         String insertSql = """
-                INSERT INTO inventory_items\s
-                (id, product_id, store_id, current_stock, reserved_stock,\s
-                 minimum_stock_level, maximum_stock_level, last_updated, version,\s
-                 created_at, updated_at)
-                VALUES\s
-                (:id, :productId, :storeId, :currentStock, :reservedStock,
-                 :minimumStockLevel, :maximumStockLevel, :lastUpdated, :version,
-                 :createdAt, :updatedAt)
-               \s""";
+                 INSERT INTO inventory_items\s
+                 (id, product_id, store_id, current_stock, reserved_stock,\s
+                  minimum_stock_level, maximum_stock_level, last_updated, version,\s
+                  created_at, updated_at)
+                 VALUES\s
+                 (:id, :productId, :storeId, :currentStock, :reservedStock,
+                  :minimumStockLevel, :maximumStockLevel, :lastUpdated, :version,
+                  :createdAt, :updatedAt)
+                \s""";
 
-        testEntity = InventoryEntity.builder()
-                .id("integration-test-item")
-                .productId("integration-prod-1")
-                .storeId("integration-store-1")
-                .currentStock(100)
-                .reservedStock(10)
-                .minimumStockLevel(5)
-                .maximumStockLevel(200)
-                .lastUpdated(java.time.LocalDateTime.now())
-                .version(1L) // Versión inicial explícita
-                .createdAt(java.time.LocalDateTime.now())
-                .updatedAt(java.time.LocalDateTime.now())
-                .build();
+        testEntity = InventoryEntityMother.createDefaultTestEntity();
 
         databaseClient.sql(insertSql)
                 .bind("id", testEntity.getId())
@@ -82,10 +71,10 @@ class SpringDataInventoryRepositoryIntegrationTest {
                 .bind("updatedAt", testEntity.getUpdatedAt())
                 .fetch()
                 .rowsUpdated()
-                .block(Duration.ofSeconds(5));
+                .block(Duration.ofSeconds(IntegrationTestsConstants.TEST_TIMEOUT_SECONDS));
 
-        testEntity = jpaRepository.findById("integration-test-item")
-                .block(Duration.ofSeconds(5));
+        testEntity = jpaRepository.findById(IntegrationTestsConstants.TEST_ITEM_ID)
+                .block(Duration.ofSeconds(IntegrationTestsConstants.TEST_TIMEOUT_SECONDS));
     }
 
     @Test
@@ -129,18 +118,7 @@ class SpringDataInventoryRepositoryIntegrationTest {
     @DisplayName("Should save new inventory item successfully in real database")
     void shouldSaveNewItemSuccessfully() {
         // Arrange
-        String newId = "new-item-" + UUID.randomUUID();
-        InventoryItem newItem = InventoryItem.builder()
-                .id(newId)
-                .productId("new-prod-1")
-                .storeId("new-store-1")
-                .currentStock(50)
-                .reservedStock(5)
-                .minimumStockLevel(2)
-                .maximumStockLevel(100)
-                .lastUpdated(java.time.LocalDateTime.now())
-                .version(null)
-                .build();
+        InventoryItem newItem = InventoryItemMother.createNewItem();
 
         // Act
         Mono<InventoryItem> result = repository.save(newItem);
@@ -149,40 +127,29 @@ class SpringDataInventoryRepositoryIntegrationTest {
         StepVerifier.create(result)
                 .assertNext(savedItem -> {
                     assertNotNull(savedItem);
-                    assertEquals(newId, savedItem.getId());
-                    assertEquals("new-prod-1", savedItem.getProductId());
-                    assertEquals(50, savedItem.getCurrentStock());
-                    assertNotNull(savedItem.getVersion()); // La versión debería ser asignada por Spring Data
-                    assertTrue(savedItem.getVersion() >= 0); // Generalmente 0 o 1
+                    assertEquals(newItem.getId(), savedItem.getId());
+                    assertEquals(newItem.getProductId(), savedItem.getProductId());
+                    assertEquals(IntegrationTestsConstants.NEW_ITEM_STOCK, savedItem.getCurrentStock());
+                    assertNotNull(savedItem.getVersion());
+                    assertTrue(savedItem.getVersion() >= IntegrationTestsConstants.ZERO_VERSION);
                 })
                 .verifyComplete();
 
         // Verify it's actually persisted
-        StepVerifier.create(repository.findById(newId))
-                .assertNext(item -> assertEquals(newId, item.getId()))
+        StepVerifier.create(repository.findById(newItem.getId()))
+                .assertNext(item -> assertEquals(newItem.getId(), item.getId()))
                 .verifyComplete();
     }
 
     @Test
     @DisplayName("Should update inventory item with version check successfully")
     void shouldUpdateWithVersionCheckSuccessfully() {
+        // Arrange
         InventoryItem existingItem = repository.findById(testEntity.getId())
-                .block(Duration.ofSeconds(5));
-
+                .block(Duration.ofSeconds(IntegrationTestsConstants.TEST_TIMEOUT_SECONDS));
         assertNotNull(existingItem, "El item debería existir en la base de datos");
 
-        // Arrange
-        InventoryItem updatedItem = InventoryItem.builder()
-                .id(existingItem.getId())
-                .productId(existingItem.getProductId())
-                .storeId(existingItem.getStoreId())
-                .currentStock(150) // Updated stock
-                .reservedStock(existingItem.getReservedStock())
-                .minimumStockLevel(existingItem.getMinimumStockLevel())
-                .maximumStockLevel(existingItem.getMaximumStockLevel())
-                .lastUpdated(java.time.LocalDateTime.now())
-                .version(existingItem.getVersion()) // ← Usa la versión ACTUAL del item real
-                .build();
+        InventoryItem updatedItem = InventoryItemMother.createUpdatedItem(existingItem);
 
         // Act
         Mono<InventoryItem> result = repository.save(updatedItem);
@@ -190,8 +157,8 @@ class SpringDataInventoryRepositoryIntegrationTest {
         // Assert
         StepVerifier.create(result)
                 .assertNext(item -> {
-                    assertEquals(150, item.getCurrentStock());
-                    assertEquals(existingItem.getVersion() + 1, item.getVersion()); // La versión debería incrementarse
+                    assertEquals(IntegrationTestsConstants.UPDATED_STOCK, item.getCurrentStock());
+                    assertEquals(existingItem.getVersion() + IntegrationTestsConstants.INITIAL_VERSION, item.getVersion());
                 })
                 .verifyComplete();
     }
@@ -204,16 +171,15 @@ class SpringDataInventoryRepositoryIntegrationTest {
                 .id(testEntity.getId())
                 .productId(testEntity.getProductId())
                 .storeId(testEntity.getStoreId())
-                .currentStock(150)
+                .currentStock(IntegrationTestsConstants.UPDATED_STOCK)
                 .reservedStock(testEntity.getReservedStock())
                 .minimumStockLevel(testEntity.getMinimumStockLevel())
                 .maximumStockLevel(testEntity.getMaximumStockLevel())
-                .lastUpdated(java.time.LocalDateTime.now())
-                .version(testEntity.getVersion() + 1)
+                .lastUpdated(testEntity.getLastUpdated())
+                .version(testEntity.getVersion() + IntegrationTestsConstants.INITIAL_VERSION)
                 .build();
 
-        // Use wrong expected version to cause mismatch
-        Long wrongExpectedVersion = testEntity.getVersion() + 5;
+        Long wrongExpectedVersion = testEntity.getVersion() + IntegrationTestsConstants.WRONG_VERSION_OFFSET;
 
         // Act
         Mono<InventoryItem> result = repository.updateWithVersionCheck(updatedItem, wrongExpectedVersion);
@@ -227,29 +193,16 @@ class SpringDataInventoryRepositoryIntegrationTest {
     @Test
     @DisplayName("Should find items by store ID successfully")
     void shouldFindByStoreIdSuccessfully() {
-        // Arrange - Add another item for the same store
-        InventoryEntity anotherEntity = InventoryEntity.builder()
-                .id("item-store-2")
-                .productId("prod-store-2")
-                .storeId(testEntity.getStoreId()) // Same store
-                .currentStock(75)
-                .reservedStock(5)
-                .minimumStockLevel(2)
-                .maximumStockLevel(150)
-                .lastUpdated(java.time.LocalDateTime.now())
-                .version(null)
-                .createdAt(java.time.LocalDateTime.now())
-                .updatedAt(java.time.LocalDateTime.now())
-                .build();
-
-        jpaRepository.save(anotherEntity).block(Duration.ofSeconds(5));
+        // Arrange
+        InventoryEntity anotherEntity = InventoryEntityMother.createEntityForStore(testEntity.getStoreId());
+        jpaRepository.save(anotherEntity).block(Duration.ofSeconds(IntegrationTestsConstants.TEST_TIMEOUT_SECONDS));
 
         // Act
         Flux<InventoryItem> result = repository.findByStore(testEntity.getStoreId());
 
         // Assert
         StepVerifier.create(result)
-                .expectNextCount(2) // Should find both items
+                .expectNextCount(2)
                 .verifyComplete();
     }
 
@@ -287,32 +240,18 @@ class SpringDataInventoryRepositoryIntegrationTest {
     @Test
     @DisplayName("Should find low stock items successfully")
     void shouldFindLowStockItems() {
-        // Arrange - Create a low stock item using DatabaseClient (sin optimistic locking)
-        InventoryEntity lowStockEntity = InventoryEntity.builder()
-                .id("low-stock-item")
-                .productId("low-prod")
-                .storeId("store-1")
-                .currentStock(10)
-                .reservedStock(5) // Available: 5
-                .minimumStockLevel(2)
-                .maximumStockLevel(100)
-                .lastUpdated(java.time.LocalDateTime.now())
-                .version(1L) // Versión explícita
-                .createdAt(java.time.LocalDateTime.now())
-                .updatedAt(java.time.LocalDateTime.now())
-                .build();
-
-        // Usa DatabaseClient para insertar sin verificación de versión
+        // Arrange
+        InventoryEntity lowStockEntity = InventoryEntityMother.createLowStockEntity();
         String insertSql = """
-                INSERT INTO inventory_items\s
-                (id, product_id, store_id, current_stock, reserved_stock,\s
-                 minimum_stock_level, maximum_stock_level, last_updated, version,\s
-                 created_at, updated_at)
-                VALUES\s
-                (:id, :productId, :storeId, :currentStock, :reservedStock,
-                 :minimumStockLevel, :maximumStockLevel, :lastUpdated, :version,
-                 :createdAt, :updatedAt)
-               \s""";
+                 INSERT INTO inventory_items\s
+                 (id, product_id, store_id, current_stock, reserved_stock,\s
+                  minimum_stock_level, maximum_stock_level, last_updated, version,\s
+                  created_at, updated_at)
+                 VALUES\s
+                 (:id, :productId, :storeId, :currentStock, :reservedStock,
+                  :minimumStockLevel, :maximumStockLevel, :lastUpdated, :version,
+                  :createdAt, :updatedAt)
+                \s""";
 
         databaseClient.sql(insertSql)
                 .bind("id", lowStockEntity.getId())
@@ -328,16 +267,16 @@ class SpringDataInventoryRepositoryIntegrationTest {
                 .bind("updatedAt", lowStockEntity.getUpdatedAt())
                 .fetch()
                 .rowsUpdated()
-                .block(Duration.ofSeconds(5));
+                .block(Duration.ofSeconds(IntegrationTestsConstants.TEST_TIMEOUT_SECONDS));
 
-        // Act - Find items with available stock less than 10
-        Flux<InventoryItem> result = repository.findLowStockItems("store-1", 10);
+        // Act
+        Flux<InventoryItem> result = repository.findLowStockItems(IntegrationTestsConstants.TEST_STORE_ID, IntegrationTestsConstants.LOW_STOCK_THRESHOLD);
 
         // Assert
         StepVerifier.create(result)
                 .assertNext(item -> {
-                    assertEquals("low-stock-item", item.getId());
-                    assertTrue(item.getCurrentStock() - item.getReservedStock() < 10);
+                    assertEquals(IntegrationTestsConstants.LOW_STOCK_ITEM_ID, item.getId());
+                    assertTrue(item.getCurrentStock() - item.getReservedStock() < IntegrationTestsConstants.LOW_STOCK_THRESHOLD);
                 })
                 .verifyComplete();
     }
@@ -349,9 +288,9 @@ class SpringDataInventoryRepositoryIntegrationTest {
         Mono<InventoryItem> item1 = repository.findById(testEntity.getId());
         Mono<InventoryItem> item2 = repository.findById(testEntity.getId());
 
-        // Act - Crea las operaciones de actualización con concurrencia real
+        // Act
         Mono<InventoryItem> result1 = item1
-                .subscribeOn(Schedulers.parallel()) // ← Ejecuta en hilo diferente
+                .subscribeOn(Schedulers.parallel())
                 .flatMap(i -> {
                     InventoryItem updated = InventoryItem.builder()
                             .id(i.getId())
@@ -368,7 +307,7 @@ class SpringDataInventoryRepositoryIntegrationTest {
                 });
 
         Mono<InventoryItem> result2 = item2
-                .subscribeOn(Schedulers.parallel()) // ← Ejecuta en hilo diferente
+                .subscribeOn(Schedulers.parallel())
                 .flatMap(i -> {
                     InventoryItem updated = InventoryItem.builder()
                             .id(i.getId())
@@ -384,7 +323,7 @@ class SpringDataInventoryRepositoryIntegrationTest {
                     return repository.save(updated);
                 });
 
-        // Assert - Ejecuta AMBAS operaciones concurrentemente
+        // Assert
         Flux<Object> combinedOperations = Flux.merge(
                 result1.map(item -> (Object) item)
                         .onErrorResume(Mono::just),
@@ -404,8 +343,8 @@ class SpringDataInventoryRepositoryIntegrationTest {
                             .filter(r -> r instanceof OptimisticLockingFailureException)
                             .count();
 
-                    assertEquals(1, successCount, "Debería haber exactamente 1 operación exitosa");
-                    assertEquals(1, errorCount, "Debería haber exactamente 1 operación fallida");
+                    assertEquals(IntegrationTestsConstants.UNIT_EXPECT, successCount, "Debería haber exactamente 1 operación exitosa");
+                    assertEquals(IntegrationTestsConstants.UNIT_EXPECT, errorCount, "Debería haber exactamente 1 operación fallida");
                 })
                 .verifyComplete();
     }
@@ -416,20 +355,20 @@ class SpringDataInventoryRepositoryIntegrationTest {
         // Act
         Mono<Integer> result = repository.updateStockWithVersion(
                 testEntity.getId(),
-                150, // nuevo stock
+                IntegrationTestsConstants.UPDATED_STOCK,
                 testEntity.getVersion()
         );
 
         // Assert
         StepVerifier.create(result)
-                .expectNext(1) // Debería actualizar 1 fila
+                .expectNext(IntegrationTestsConstants.UNIT_EXPECT)
                 .verifyComplete();
 
         // Verifica que el stock se actualizó y la versión incrementó
         StepVerifier.create(repository.findById(testEntity.getId()))
                 .assertNext(item -> {
-                    assertEquals(150, item.getCurrentStock());
-                    assertEquals(testEntity.getVersion() + 1, item.getVersion());
+                    assertEquals(IntegrationTestsConstants.UPDATED_STOCK, item.getCurrentStock());
+                    assertEquals(testEntity.getVersion() + IntegrationTestsConstants.UNIT_EXPECT, item.getVersion());
                 })
                 .verifyComplete();
     }
@@ -437,27 +376,27 @@ class SpringDataInventoryRepositoryIntegrationTest {
     @Test
     @DisplayName("Should return 0 rows when updateStockWithVersion has version mismatch")
     void shouldReturnZeroWhenUpdateStockVersionMismatch() {
-        // Use wrong version
-        Long wrongVersion = testEntity.getVersion() + 5;
+        // Arrange
+        Long wrongVersion = testEntity.getVersion() + IntegrationTestsConstants.WRONG_VERSION_OFFSET;
 
         // Act
         Mono<Integer> result = repository.updateStockWithVersion(
                 testEntity.getId(),
-                150,
+                IntegrationTestsConstants.UPDATED_STOCK,
                 wrongVersion
         );
 
-        // Assert - Debería retornar 0 filas actualizadas
+        // Assert
         StepVerifier.create(result)
-                .expectNext(0)
+                .expectNext(Math.toIntExact(IntegrationTestsConstants.ZERO_VERSION))
                 .verifyComplete();
     }
 
     @Test
     @DisplayName("Should reserve stock with version successfully")
     void shouldReserveStockWithVersionSuccessfully() {
-        // Arrange - stock actual: 100, reservado: 10
-        int quantityToReserve = 5;
+        // Arrange
+        int quantityToReserve = IntegrationTestsConstants.QUANTITY_TO_RESERVE;
 
         // Act
         Mono<Integer> result = repository.reserveStockWithVersion(
@@ -468,15 +407,15 @@ class SpringDataInventoryRepositoryIntegrationTest {
 
         // Assert
         StepVerifier.create(result)
-                .expectNext(1) // Debería actualizar 1 fila
+                .expectNext(IntegrationTestsConstants.UNIT_EXPECT)
                 .verifyComplete();
 
         // Verifica que el stock reservado aumentó y la versión incrementó
         StepVerifier.create(repository.findById(testEntity.getId()))
                 .assertNext(item -> {
-                    assertEquals(100, item.getCurrentStock()); // stock actual no cambia
-                    assertEquals(15, item.getReservedStock()); // reservado aumenta en 5
-                    assertEquals(testEntity.getVersion() + 1, item.getVersion());
+                    assertEquals(IntegrationTestsConstants.INITIAL_CURRENT_STOCK, item.getCurrentStock());
+                    assertEquals(IntegrationTestsConstants.INITIAL_RESERVED_STOCK + IntegrationTestsConstants.QUANTITY_TO_RESERVE, item.getReservedStock());
+                    assertEquals(testEntity.getVersion() + IntegrationTestsConstants.UNIT_EXPECT, item.getVersion());
                 })
                 .verifyComplete();
     }
@@ -484,8 +423,8 @@ class SpringDataInventoryRepositoryIntegrationTest {
     @Test
     @DisplayName("Should release reserved stock with version successfully")
     void shouldReleaseReservedStockWithVersionSuccessfully() {
-        // Arrange - stock actual: 100, reservado: 10
-        int quantityToRelease = 3;
+        // Arrange
+        int quantityToRelease = IntegrationTestsConstants.QUANTITY_TO_RELEASE;
 
         // Act
         Mono<Integer> result = repository.releaseReservedStockWithVersion(
@@ -496,15 +435,15 @@ class SpringDataInventoryRepositoryIntegrationTest {
 
         // Assert
         StepVerifier.create(result)
-                .expectNext(1) // Debería actualizar 1 fila
+                .expectNext(IntegrationTestsConstants.UNIT_EXPECT)
                 .verifyComplete();
 
         // Verifica que el stock reservado disminuyó y la versión incrementó
         StepVerifier.create(repository.findById(testEntity.getId()))
                 .assertNext(item -> {
-                    assertEquals(100, item.getCurrentStock()); // stock actual no cambia
-                    assertEquals(7, item.getReservedStock()); // reservado disminuye en 3
-                    assertEquals(testEntity.getVersion() + 1, item.getVersion());
+                    assertEquals(IntegrationTestsConstants.INITIAL_CURRENT_STOCK, item.getCurrentStock());
+                    assertEquals(IntegrationTestsConstants.INITIAL_RESERVED_STOCK - IntegrationTestsConstants.QUANTITY_TO_RELEASE, item.getReservedStock());
+                    assertEquals(testEntity.getVersion() + IntegrationTestsConstants.UNIT_EXPECT, item.getVersion());
                 })
                 .verifyComplete();
     }
@@ -512,52 +451,53 @@ class SpringDataInventoryRepositoryIntegrationTest {
     @Test
     @DisplayName("Should count overstock items successfully")
     void shouldCountOverstockItemsSuccessfully() {
-        // Arrange - crear un item con overstock usando DatabaseClient
+        // Arrange
+        InventoryEntity overstockEntity = InventoryEntityMother.createOverstockEntity();
         String insertSql = """
-        INSERT INTO inventory_items\s
-        (id, product_id, store_id, current_stock, reserved_stock,\s
-         minimum_stock_level, maximum_stock_level, last_updated, version,\s
-         created_at, updated_at)
-        VALUES\s
-        (:id, :productId, :storeId, :currentStock, :reservedStock,
-         :minimumStockLevel, :maximumStockLevel, :lastUpdated, :version,
-         :createdAt, :updatedAt)
-       \s""";
+                 INSERT INTO inventory_items\s
+                 (id, product_id, store_id, current_stock, reserved_stock,\s
+                  minimum_stock_level, maximum_stock_level, last_updated, version,\s
+                  created_at, updated_at)
+                 VALUES\s
+                 (:id, :productId, :storeId, :currentStock, :reservedStock,
+                  :minimumStockLevel, :maximumStockLevel, :lastUpdated, :version,
+                  :createdAt, :updatedAt)
+                \s""";
 
         databaseClient.sql(insertSql)
-                .bind("id", "overstock-item")
-                .bind("productId", "over-prod")
-                .bind("storeId", testEntity.getStoreId()) // misma tienda
-                .bind("currentStock", 300) // sobre stock (máximo es 200)
-                .bind("reservedStock", 0)
-                .bind("minimumStockLevel", 5)
-                .bind("maximumStockLevel", 200)
-                .bind("lastUpdated", java.time.LocalDateTime.now())
-                .bind("version", 1L)
-                .bind("createdAt", java.time.LocalDateTime.now())
-                .bind("updatedAt", java.time.LocalDateTime.now())
+                .bind("id", overstockEntity.getId())
+                .bind("productId", overstockEntity.getProductId())
+                .bind("storeId", overstockEntity.getStoreId())
+                .bind("currentStock", overstockEntity.getCurrentStock())
+                .bind("reservedStock", overstockEntity.getReservedStock())
+                .bind("minimumStockLevel", overstockEntity.getMinimumStockLevel())
+                .bind("maximumStockLevel", overstockEntity.getMaximumStockLevel())
+                .bind("lastUpdated", overstockEntity.getLastUpdated())
+                .bind("version", overstockEntity.getVersion())
+                .bind("createdAt", overstockEntity.getCreatedAt())
+                .bind("updatedAt", overstockEntity.getUpdatedAt())
                 .fetch()
                 .rowsUpdated()
-                .block(Duration.ofSeconds(5));
+                .block(Duration.ofSeconds(IntegrationTestsConstants.TEST_TIMEOUT_SECONDS));
 
         // Act
-        Mono<Integer> result = repository.countOverstockItems(testEntity.getStoreId());
+        Mono<Integer> result = repository.countOverstockItems(IntegrationTestsConstants.TEST_STORE_ID);
 
-        // Assert - Debería encontrar 1 item con overstock
+        // Assert
         StepVerifier.create(result)
-                .expectNext(1)
+                .expectNext(IntegrationTestsConstants.UNIT_EXPECT)
                 .verifyComplete();
     }
 
     @Test
     @DisplayName("Should return 0 when no overstock items")
     void shouldReturnZeroWhenNoOverstockItems() {
-        // Act - Buscar overstock en una tienda diferente
-        Mono<Integer> result = repository.countOverstockItems("different-store");
+        // Act
+        Mono<Integer> result = repository.countOverstockItems(IntegrationTestsConstants.DIFFERENT_STORE_ID);
 
-        // Assert - Debería retornar 0
+        // Assert
         StepVerifier.create(result)
-                .expectNext(0)
+                .expectNext(Math.toIntExact(IntegrationTestsConstants.ZERO_VERSION))
                 .verifyComplete();
     }
 

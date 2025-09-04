@@ -91,15 +91,15 @@ public class SpringDataInventoryRepository implements InventoryRepository {
     @Transactional
     public Mono<InventoryItem> updateWithVersionCheckNative(InventoryItem item, Long expectedVersion) {
         String updateSql = """
-                UPDATE inventory_items\s
-                SET current_stock = :currentStock,\s
-                    reserved_stock = :reservedStock,
-                    minimum_stock_level = :minimumStockLevel,
-                    maximum_stock_level = :maximumStockLevel,
-                    last_updated = :lastUpdated,
-                    version = version + 1
-                WHERE id = :id AND version = :expectedVersion
-               \s""";
+                 UPDATE inventory_items\s
+                 SET current_stock = :currentStock,\s
+                     reserved_stock = :reservedStock,
+                     minimum_stock_level = :minimumStockLevel,
+                     maximum_stock_level = :maximumStockLevel,
+                     last_updated = :lastUpdated,
+                     version = version + 1
+                 WHERE id = :id AND version = :expectedVersion
+                \s""";
 
         return databaseClient.sql(updateSql)
                 .bind("currentStock", item.getCurrentStock())
