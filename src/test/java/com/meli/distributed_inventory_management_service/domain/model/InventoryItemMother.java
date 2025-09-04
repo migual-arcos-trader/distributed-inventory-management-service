@@ -13,7 +13,7 @@ public class InventoryItemMother {
     public static final Integer DEFAULT_MAX_STOCK = 200;
     public static final Long DEFAULT_VERSION = 1L;
     public static final Long ZERO_VERSION = 0L;
-    public static final Integer MAXIMUM_STOCK = 0;
+    public static final Integer MAXIMUM_STOCK = 50;
     public static final Integer UPDATE_STOCK = 50;
     public static final Integer WITHOUT_STOCK = 0;
 
