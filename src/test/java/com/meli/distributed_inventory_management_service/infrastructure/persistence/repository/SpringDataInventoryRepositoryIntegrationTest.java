@@ -410,4 +410,155 @@ class SpringDataInventoryRepositoryIntegrationTest {
                 .verifyComplete();
     }
 
+    @Test
+    @DisplayName("Should update stock with version successfully")
+    void shouldUpdateStockWithVersionSuccessfully() {
+        // Act
+        Mono<Integer> result = repository.updateStockWithVersion(
+                testEntity.getId(),
+                150, // nuevo stock
+                testEntity.getVersion()
+        );
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(1) // Debería actualizar 1 fila
+                .verifyComplete();
+
+        // Verifica que el stock se actualizó y la versión incrementó
+        StepVerifier.create(repository.findById(testEntity.getId()))
+                .assertNext(item -> {
+                    assertEquals(150, item.getCurrentStock());
+                    assertEquals(testEntity.getVersion() + 1, item.getVersion());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("Should return 0 rows when updateStockWithVersion has version mismatch")
+    void shouldReturnZeroWhenUpdateStockVersionMismatch() {
+        // Use wrong version
+        Long wrongVersion = testEntity.getVersion() + 5;
+
+        // Act
+        Mono<Integer> result = repository.updateStockWithVersion(
+                testEntity.getId(),
+                150,
+                wrongVersion
+        );
+
+        // Assert - Debería retornar 0 filas actualizadas
+        StepVerifier.create(result)
+                .expectNext(0)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("Should reserve stock with version successfully")
+    void shouldReserveStockWithVersionSuccessfully() {
+        // Arrange - stock actual: 100, reservado: 10
+        int quantityToReserve = 5;
+
+        // Act
+        Mono<Integer> result = repository.reserveStockWithVersion(
+                testEntity.getId(),
+                quantityToReserve,
+                testEntity.getVersion()
+        );
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(1) // Debería actualizar 1 fila
+                .verifyComplete();
+
+        // Verifica que el stock reservado aumentó y la versión incrementó
+        StepVerifier.create(repository.findById(testEntity.getId()))
+                .assertNext(item -> {
+                    assertEquals(100, item.getCurrentStock()); // stock actual no cambia
+                    assertEquals(15, item.getReservedStock()); // reservado aumenta en 5
+                    assertEquals(testEntity.getVersion() + 1, item.getVersion());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("Should release reserved stock with version successfully")
+    void shouldReleaseReservedStockWithVersionSuccessfully() {
+        // Arrange - stock actual: 100, reservado: 10
+        int quantityToRelease = 3;
+
+        // Act
+        Mono<Integer> result = repository.releaseReservedStockWithVersion(
+                testEntity.getId(),
+                quantityToRelease,
+                testEntity.getVersion()
+        );
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(1) // Debería actualizar 1 fila
+                .verifyComplete();
+
+        // Verifica que el stock reservado disminuyó y la versión incrementó
+        StepVerifier.create(repository.findById(testEntity.getId()))
+                .assertNext(item -> {
+                    assertEquals(100, item.getCurrentStock()); // stock actual no cambia
+                    assertEquals(7, item.getReservedStock()); // reservado disminuye en 3
+                    assertEquals(testEntity.getVersion() + 1, item.getVersion());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("Should count overstock items successfully")
+    void shouldCountOverstockItemsSuccessfully() {
+        // Arrange - crear un item con overstock usando DatabaseClient
+        String insertSql = """
+        INSERT INTO inventory_items\s
+        (id, product_id, store_id, current_stock, reserved_stock,\s
+         minimum_stock_level, maximum_stock_level, last_updated, version,\s
+         created_at, updated_at)
+        VALUES\s
+        (:id, :productId, :storeId, :currentStock, :reservedStock,
+         :minimumStockLevel, :maximumStockLevel, :lastUpdated, :version,
+         :createdAt, :updatedAt)
+       \s""";
+
+        databaseClient.sql(insertSql)
+                .bind("id", "overstock-item")
+                .bind("productId", "over-prod")
+                .bind("storeId", testEntity.getStoreId()) // misma tienda
+                .bind("currentStock", 300) // sobre stock (máximo es 200)
+                .bind("reservedStock", 0)
+                .bind("minimumStockLevel", 5)
+                .bind("maximumStockLevel", 200)
+                .bind("lastUpdated", java.time.LocalDateTime.now())
+                .bind("version", 1L)
+                .bind("createdAt", java.time.LocalDateTime.now())
+                .bind("updatedAt", java.time.LocalDateTime.now())
+                .fetch()
+                .rowsUpdated()
+                .block(Duration.ofSeconds(5));
+
+        // Act
+        Mono<Integer> result = repository.countOverstockItems(testEntity.getStoreId());
+
+        // Assert - Debería encontrar 1 item con overstock
+        StepVerifier.create(result)
+                .expectNext(1)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("Should return 0 when no overstock items")
+    void shouldReturnZeroWhenNoOverstockItems() {
+        // Act - Buscar overstock en una tienda diferente
+        Mono<Integer> result = repository.countOverstockItems("different-store");
+
+        // Assert - Debería retornar 0
+        StepVerifier.create(result)
+                .expectNext(0)
+                .verifyComplete();
+    }
+
 }
