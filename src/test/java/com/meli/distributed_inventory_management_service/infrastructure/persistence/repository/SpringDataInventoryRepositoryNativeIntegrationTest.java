@@ -1,7 +1,8 @@
 package com.meli.distributed_inventory_management_service.infrastructure.persistence.repository;
 
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
-import com.meli.distributed_inventory_management_service.infrastructure.config.TestDatabaseConfig;
+import com.meli.distributed_inventory_management_service.infrastructure.config.TestContainersConfig;
+import com.meli.distributed_inventory_management_service.infrastructure.config.TestMapperConfig;
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,16 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
-import static com.meli.distributed_inventory_management_service.infrastructure.persistence.repository.TestDataFactory.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataR2dbcTest
-@Import({TestDatabaseConfig.class, SpringDataInventoryRepository.class})
+@Import({TestContainersConfig.class, SpringDataInventoryRepository.class, TestMapperConfig.class})
+@ActiveProfiles("testcontainers")
 class SpringDataInventoryRepositoryNativeIntegrationTest {
 
     @Autowired
@@ -33,8 +35,22 @@ class SpringDataInventoryRepositoryNativeIntegrationTest {
     @BeforeEach
     void setUp() {
         jpaRepository.deleteAll().block(Duration.ofSeconds(5));
-        testEntity = createInventoryEntity();
+        testEntity = InventoryEntity.builder()
+                .id("native-test-item")
+                .productId("native-prod-1")
+                .storeId("native-store-1")
+                .currentStock(100)
+                .reservedStock(10)
+                .minimumStockLevel(5)
+                .maximumStockLevel(200)
+                .lastUpdated(java.time.LocalDateTime.now())
+                .version(null)
+                .createdAt(java.time.LocalDateTime.now())
+                .updatedAt(java.time.LocalDateTime.now())
+                .build();
+
         jpaRepository.save(testEntity).block(Duration.ofSeconds(5));
+        testEntity = jpaRepository.findById("native-test-item").block(Duration.ofSeconds(5));
     }
 
     @Test
@@ -49,7 +65,7 @@ class SpringDataInventoryRepositoryNativeIntegrationTest {
                 .reservedStock(testEntity.getReservedStock())
                 .minimumStockLevel(testEntity.getMinimumStockLevel())
                 .maximumStockLevel(testEntity.getMaximumStockLevel())
-                .lastUpdated(testEntity.getLastUpdated())
+                .lastUpdated(java.time.LocalDateTime.now())
                 .version(testEntity.getVersion() + 1)
                 .build();
 
@@ -80,7 +96,7 @@ class SpringDataInventoryRepositoryNativeIntegrationTest {
                 .reservedStock(testEntity.getReservedStock())
                 .minimumStockLevel(testEntity.getMinimumStockLevel())
                 .maximumStockLevel(testEntity.getMaximumStockLevel())
-                .lastUpdated(testEntity.getLastUpdated())
+                .lastUpdated(java.time.LocalDateTime.now())
                 .version(testEntity.getVersion() + 1)
                 .build();
 
@@ -111,7 +127,7 @@ class SpringDataInventoryRepositoryNativeIntegrationTest {
                 .reservedStock(testEntity.getReservedStock())
                 .minimumStockLevel(testEntity.getMinimumStockLevel())
                 .maximumStockLevel(testEntity.getMaximumStockLevel())
-                .lastUpdated(testEntity.getLastUpdated())
+                .lastUpdated(java.time.LocalDateTime.now())
                 .version(testEntity.getVersion() + 1)
                 .build();
 
@@ -129,5 +145,4 @@ class SpringDataInventoryRepositoryNativeIntegrationTest {
                 })
                 .verifyComplete();
     }
-
 }
