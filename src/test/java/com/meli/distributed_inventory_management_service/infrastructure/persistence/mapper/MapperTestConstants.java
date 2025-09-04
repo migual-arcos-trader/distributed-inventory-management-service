@@ -2,10 +2,6 @@ package com.meli.distributed_inventory_management_service.infrastructure.persist
 
 public class MapperTestConstants {
 
-    private MapperTestConstants() {
-        // Utility class
-    }
-
     // Entity Constants
     public static final String ENTITY_ID = "entity-1";
     public static final String PRODUCT_ID = "prod-1";
@@ -17,9 +13,12 @@ public class MapperTestConstants {
     public static final Long VERSION = 1L;
     public static final Long VERSION_5 = 5L;
     public static final Long VERSION_10 = 10L;
-
     // Error Messages
     public static final String VERSION_MISMATCH_ERROR = "Version mismatch. Expected: ";
     public static final String ACTUAL_VERSION = ", Actual: ";
+
+    private MapperTestConstants() {
+        // Utility class
+    }
 
 }

@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class DistributedInventoryManagementServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DistributedInventoryManagementServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DistributedInventoryManagementServiceApplication.class, args);
+    }
 
 }

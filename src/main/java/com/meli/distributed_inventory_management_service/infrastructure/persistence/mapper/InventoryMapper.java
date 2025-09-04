@@ -9,7 +9,6 @@ import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import org.springframework.dao.OptimisticLockingFailureException;
 
-
 import java.util.Objects;
 
 @Mapper(
