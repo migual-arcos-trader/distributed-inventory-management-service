@@ -6,6 +6,7 @@ import reactor.core.publisher.Mono;
 
 @Value
 @Builder
+
 public class Store {
 
     String id;

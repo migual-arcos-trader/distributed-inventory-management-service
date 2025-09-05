@@ -1,5 +1,6 @@
 package com.meli.distributed_inventory_management_service.domain.exception;
 
+
 public class ConcurrentUpdateException extends InventoryException {
     public ConcurrentUpdateException(String productId, String storeId,
                                      Long expectedVersion, Long actualVersion) {

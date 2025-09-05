@@ -15,8 +15,10 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @RequiredArgsConstructor
+
 public class SpringDataInventoryRepository implements InventoryRepository {
 
+    public static final int errorNumberOfRowsUpdated = 0;
     private final ReactiveInventoryJpaRepository jpaRepository;
     private final DatabaseClient databaseClient;
     private final InventoryMapper inventoryMapper;
@@ -88,19 +90,18 @@ public class SpringDataInventoryRepository implements InventoryRepository {
 
     @Transactional
     public Mono<InventoryItem> updateWithVersionCheckNative(InventoryItem item, Long expectedVersion) {
-        String sql = """
-                UPDATE inventory_items\s
-                SET current_stock = :currentStock,\s
-                    reserved_stock = :reservedStock,
-                    minimum_stock_level = :minimumStockLevel,
-                    maximum_stock_level = :maximumStockLevel,
-                    last_updated = :lastUpdated,
-                    version = version + 1
-                WHERE id = :id AND version = :expectedVersion
-                RETURNING *
-               \s""";
+        String updateSql = """
+                 UPDATE inventory_items\s
+                 SET current_stock = :currentStock,\s
+                     reserved_stock = :reservedStock,
+                     minimum_stock_level = :minimumStockLevel,
+                     maximum_stock_level = :maximumStockLevel,
+                     last_updated = :lastUpdated,
+                     version = version + 1
+                 WHERE id = :id AND version = :expectedVersion
+                \s""";
 
-        return databaseClient.sql(sql)
+        return databaseClient.sql(updateSql)
                 .bind("currentStock", item.getCurrentStock())
                 .bind("reservedStock", item.getReservedStock())
                 .bind("minimumStockLevel", item.getMinimumStockLevel())
@@ -109,12 +110,17 @@ public class SpringDataInventoryRepository implements InventoryRepository {
                 .bind("id", item.getId())
                 .bind("expectedVersion", expectedVersion)
                 .fetch()
-                .one()
-                .flatMap(result -> jpaRepository.findById(item.getId()))
-                .map(inventoryMapper::toDomain)
-                .switchIfEmpty(Mono.error(new OptimisticLockingFailureException(
-                        "Concurrent update detected for item: " + item.getId()
-                )));
+                .rowsUpdated()
+                .flatMap(rowsUpdated -> {
+                    if (rowsUpdated == errorNumberOfRowsUpdated) {
+                        return Mono.error(new OptimisticLockingFailureException(
+                                "Concurrent update detected for item: " + item.getId() +
+                                        ". Expected version: " + expectedVersion
+                        ));
+                    }
+                    return jpaRepository.findById(item.getId());
+                })
+                .map(inventoryMapper::toDomain);
     }
 
     public Mono<Integer> updateStockWithVersion(String id, Integer newStock, Long version) {

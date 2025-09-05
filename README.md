@@ -1,11 +1,15 @@
 # Distributed Inventory Management Service
 
 ## Descripción
-Sistema optimizado para la gestión de inventario distribuido en una cadena de tiendas minoristas. Este servicio aborda problemas de consistencia, latencia y disponibilidad mediante una arquitectura moderna basada en principios de diseño sólidos.
+
+Sistema optimizado para la gestión de inventario distribuido en una cadena de tiendas minoristas. Este servicio aborda
+problemas de consistencia, latencia y disponibilidad mediante una arquitectura moderna basada en principios de diseño
+sólidos.
 
 ## Arquitectura
 
 ### Diseño Técnico
+
 El sistema sigue una **Arquitectura Hexagonal** con los siguientes componentes principales:
 
 - **Capa de Dominio**: Contiene la lógica de negocio central y entidades del inventario
@@ -47,11 +51,13 @@ El sistema sigue una **Arquitectura Hexagonal** con los siguientes componentes p
 ## API Endpoints Principales
 
 ### Gestión de Inventario
+
 - `GET /api/v1/inventory/{productId}` - Consultar stock disponible
 - `POST /api/v1/inventory/update` - Actualizar stock (compra/venta/reposición)
 - `GET /api/v1/inventory/store/{storeId}` - Consultar inventario por tienda
 
 ### Monitoreo y Salud
+
 - `GET /actuator/health` - Salud del sistema
 - `GET /actuator/metrics` - Métricas de la aplicación
 - `GET /v3/api-docs` - Documentación OpenAPI
@@ -60,17 +66,21 @@ El sistema sigue una **Arquitectura Hexagonal** con los siguientes componentes p
 ## Configuración
 
 ### Prerrequisitos
+
 - Java 17 o superior
 - Maven 3.6+ o superior
 - IDE con soporte para Lombok
 
 ### Instalación
+
 1. Clonar el repositorio
 2. Ejecutar `mvn clean install`
 3. La aplicación estará disponible en `http://localhost:8080`
 
 ### Configuración de Base de Datos
+
 La aplicación utiliza H2 Database en memoria con:
+
 - URL: `jdbc:h2:mem:inventorydb`
 - Console: `http://localhost:8080/h2-console`
 - Credenciales: (sa/sin password)
@@ -106,12 +116,15 @@ distributed-inventory-management-service/
 ## Decisiones de Diseño
 
 ### Consistencia vs Disponibilidad
+
 Para este escenario distribuido, se prioriza la **disponibilidad sobre consistencia fuerte**, implementando:
+
 - **Eventual Consistency**: Las tiendas se sincronizan periódicamente
 - **Conflict Resolution**: Mecanismos de resolución de conflictos en actualizaciones concurrentes
 - **Retry Mechanisms**: Reintentos automáticos para operaciones fallidas
 
 ### Manejo de Concurrencia
+
 - **Optimistic Locking**: Para prevenir race conditions en updates
 - **Transactional Boundaries**: Delimitación clara de transacciones
 - **Reactive Streams**: Para manejo eficiente de peticiones concurrentes

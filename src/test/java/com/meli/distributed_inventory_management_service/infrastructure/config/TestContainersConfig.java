@@ -8,7 +8,7 @@ import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 
 @TestConfiguration
-public class TestDatabaseConfig {
+public class TestContainersConfig {
 
     @Bean
     public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
@@ -17,7 +17,7 @@ public class TestDatabaseConfig {
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("schema.sql"));
-        populator.addScript(new ClassPathResource("data.sql"));
+        populator.addScript(new ClassPathResource("data-test.sql"));
 
         initializer.setDatabasePopulator(populator);
         return initializer;

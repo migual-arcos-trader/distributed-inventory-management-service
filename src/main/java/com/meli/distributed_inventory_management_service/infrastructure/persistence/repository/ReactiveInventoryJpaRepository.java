@@ -4,14 +4,17 @@ import com.meli.distributed_inventory_management_service.infrastructure.persiste
 import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ReactiveInventoryJpaRepository extends ReactiveCrudRepository<InventoryEntity, String> {
 
     Mono<InventoryEntity> findByProductIdAndStoreId(String productId, String storeId);
+
     Flux<InventoryEntity> findByStoreId(String storeId);
+
     Flux<InventoryEntity> findByProductId(String productId);
+
     Mono<Boolean> existsByProductIdAndStoreId(String productId, String storeId);
 
     @Modifying
