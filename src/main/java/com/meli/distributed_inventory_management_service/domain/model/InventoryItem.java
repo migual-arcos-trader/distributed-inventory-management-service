@@ -23,6 +23,12 @@ public class InventoryItem {
     LocalDateTime lastUpdated;
     Long version;
 
+    private static Mono<InventoryItem> getErrorByInsufficientStock(Integer quantity, Integer available) {
+        return Mono.error(new IllegalStateException(
+                String.format("Insufficient stock. Available: %d, Requested: %d", available, quantity)
+        ));
+    }
+
     public Mono<Integer> getAvailableStock() {
         return Mono.just(Math.max(MIN_AVAILABLE_STOCK, currentStock - reservedStock));
     }
@@ -42,12 +48,6 @@ public class InventoryItem {
             }
             return getInventoryItemMono(quantity);
         });
-    }
-
-    private static Mono<InventoryItem> getErrorByInsufficientStock(Integer quantity, Integer available) {
-        return Mono.error(new IllegalStateException(
-                String.format("Insufficient stock. Available: %d, Requested: %d", available, quantity)
-        ));
     }
 
     private Mono<InventoryItem> getInventoryItemMono(Integer quantity) {

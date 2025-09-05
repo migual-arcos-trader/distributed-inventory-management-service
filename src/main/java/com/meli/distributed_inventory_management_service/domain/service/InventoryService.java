@@ -5,7 +5,6 @@ import com.meli.distributed_inventory_management_service.domain.model.InventoryI
 import com.meli.distributed_inventory_management_service.domain.model.UpdateType;
 import com.meli.distributed_inventory_management_service.domain.repository.InventoryRepository;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ public class InventoryService {
     }
 
     @Retryable(
-            retryFor = {OptimisticLockingFailureException.class, ObjectOptimisticLockingFailureException.class},
+            retryFor = {OptimisticLockingFailureException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = DELAY, multiplier = MULTIPLIER, maxDelay = MAX_DELAY)
     )
