@@ -145,9 +145,41 @@ distributed-inventory-management-service/
 │   ├── schema.sql                                         # Esquema de base de datos
 │   └── data.sql                                           # Datos iniciales
 └── src/test/java/                                         # Pruebas
-    ├── domain/                                            # Pruebas de dominio
-    ├── infrastructure/                                    # Pruebas de infraestructura
-    └── application/                                       # Pruebas de aplicación        
+    ├── domain/
+    │   ├── model/
+    │   │   ├── InventoryItemMother.java
+    │   │   └── InventoryItemTest.java
+    │   └── service/
+    │       └── InventoryServiceTest.java
+    └── infrastructure/
+        ├── config/
+        │   ├── database/
+        │   │   ├── TestContainersConfig.java
+        │   │   ├── TestDatabaseConfig.java
+        │   │   └── TestMapperConfig.java
+        │   └── security/
+        │       ├── AuthObjectMother.java
+        │       ├── JwtAuthConverterTest.java
+        │       ├── JwtObjectMother.java
+        │       ├── JwtUtilTest.java
+        │       ├── SecurityConfigIntegrationTest.java
+        │       └── SecurityTestConstants.java
+        ├── persistence/
+        │   ├── entity/
+        │   │   └── InventoryEntityMother.java
+        │   ├── mapper/
+        │   │   ├── EntityTestFactory.java
+        │   │   ├── InventoryMapperTest.java
+        │   │   └── MapperTestConstants.java
+        │   └── repository/
+        │       ├── IntegrationTestsConstants.java
+        │       ├── SpringDataInventoryRepositoryIntegrationTest.java
+        │       ├── SpringDataInventoryRepositoryNativeIntegrationTest.java
+        │       └── TestDataFactory.java
+        └── web/
+            └── controller/
+                ├── AuthControllerIntegrationTest.java
+                └── AuthObjectMother.java
 ```
 
 ## Decisiones de Diseño
