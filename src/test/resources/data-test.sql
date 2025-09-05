@@ -1,4 +1,3 @@
--- Datos de prueba para integration tests - Versión compatible con H2
 MERGE INTO inventory_items (id, product_id, store_id, current_stock, reserved_stock, minimum_stock_level, maximum_stock_level, last_updated, version, created_at, updated_at)
 KEY(id)
 VALUES
