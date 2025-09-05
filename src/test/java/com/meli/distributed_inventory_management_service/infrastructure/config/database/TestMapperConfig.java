@@ -1,4 +1,4 @@
-package com.meli.distributed_inventory_management_service.infrastructure.config;
+package com.meli.distributed_inventory_management_service.infrastructure.config.database;
 
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.mapper.InventoryMapper;
 import org.mapstruct.factory.Mappers;

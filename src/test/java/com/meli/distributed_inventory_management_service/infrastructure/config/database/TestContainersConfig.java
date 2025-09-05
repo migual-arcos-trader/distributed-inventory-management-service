@@ -1,4 +1,4 @@
-package com.meli.distributed_inventory_management_service.infrastructure.config;
+package com.meli.distributed_inventory_management_service.infrastructure.config.database;
 
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.boot.test.context.TestConfiguration;

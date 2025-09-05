@@ -2,8 +2,8 @@ package com.meli.distributed_inventory_management_service.infrastructure.persist
 
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItemMother;
-import com.meli.distributed_inventory_management_service.infrastructure.config.TestContainersConfig;
-import com.meli.distributed_inventory_management_service.infrastructure.config.TestMapperConfig;
+import com.meli.distributed_inventory_management_service.infrastructure.config.database.TestContainersConfig;
+import com.meli.distributed_inventory_management_service.infrastructure.config.database.TestMapperConfig;
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntity;
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntityMother;
 import org.junit.jupiter.api.BeforeEach;
