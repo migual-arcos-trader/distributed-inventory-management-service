@@ -38,23 +38,30 @@ public class InventoryItem {
 
         return getAvailableStock().flatMap(available -> {
             if (available < quantity) {
-                return Mono.error(new IllegalStateException(
-                        String.format("Insufficient stock. Available: %d, Requested: %d", available, quantity)
-                ));
+                return getErrorByInsufficientStock(quantity, available);
             }
-
-            return Mono.just(InventoryItem.builder()
-                    .id(this.id)
-                    .productId(this.productId)
-                    .storeId(this.storeId)
-                    .currentStock(this.currentStock)
-                    .reservedStock(this.reservedStock + quantity)
-                    .minimumStockLevel(this.minimumStockLevel)
-                    .maximumStockLevel(this.maximumStockLevel)
-                    .lastUpdated(LocalDateTime.now())
-                    .version(this.version + PLUS_VERSION)
-                    .build());
+            return getInventoryItemMono(quantity);
         });
+    }
+
+    private static Mono<InventoryItem> getErrorByInsufficientStock(Integer quantity, Integer available) {
+        return Mono.error(new IllegalStateException(
+                String.format("Insufficient stock. Available: %d, Requested: %d", available, quantity)
+        ));
+    }
+
+    private Mono<InventoryItem> getInventoryItemMono(Integer quantity) {
+        return Mono.just(InventoryItem.builder()
+                .id(this.id)
+                .productId(this.productId)
+                .storeId(this.storeId)
+                .currentStock(this.currentStock)
+                .reservedStock(this.reservedStock + quantity)
+                .minimumStockLevel(this.minimumStockLevel)
+                .maximumStockLevel(this.maximumStockLevel)
+                .lastUpdated(LocalDateTime.now())
+                .version(this.version + PLUS_VERSION)
+                .build());
     }
 
     public Mono<InventoryItem> releaseReservedStock(Integer quantity) {

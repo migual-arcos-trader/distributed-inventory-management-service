@@ -1,4 +1,4 @@
-package com.meli.distributed_inventory_management_service.infrastructure.config;
+package com.meli.distributed_inventory_management_service.infrastructure.config.database;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.annotation.EnableRetry;

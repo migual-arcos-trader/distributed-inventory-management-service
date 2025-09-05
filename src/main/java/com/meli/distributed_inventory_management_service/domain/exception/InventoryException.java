@@ -4,7 +4,8 @@ import lombok.Getter;
 
 
 @Getter
-public class InventoryException extends RuntimeException {
+public class InventoryException extends Exception {
+
     private final String errorCode;
     private final String details;
 
