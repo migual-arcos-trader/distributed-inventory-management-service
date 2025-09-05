@@ -1,6 +1,5 @@
 package com.meli.distributed_inventory_management_service.domain.exception;
 
-
 public class InsufficientStockException extends InventoryException {
     public InsufficientStockException(String productId, String storeId,
                                       Integer requested, Integer available) {

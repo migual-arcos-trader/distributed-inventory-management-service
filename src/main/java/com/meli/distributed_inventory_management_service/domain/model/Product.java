@@ -9,7 +9,6 @@ import java.util.Objects;
 
 @Value
 @Builder
-
 public class Product {
 
     private static final int MIN_PRICE = 0;

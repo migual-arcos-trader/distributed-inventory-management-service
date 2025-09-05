@@ -1,6 +1,5 @@
 package com.meli.distributed_inventory_management_service.domain.exception;
 
-
 public class StockValidationException extends InventoryException {
 
     public StockValidationException(String message, String details) {
