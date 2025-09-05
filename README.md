@@ -91,25 +91,45 @@ La aplicación utiliza H2 Database en memoria con:
 distributed-inventory-management-service/
 └── src/main/java/com/meli/
     └── inventory/
-        ├── application/          // Capa de aplicación (Casos de uso)
-        │   ├── service/          // Servicios de aplicación (coordinadores)
-        │   ├── port/             // Puertos (interfaces hacia el exterior)
-        │   └── dto/              // Data Transfer Objects
-        ├── domain/               // Capa de dominio (núcleo del negocio)
-        │   ├── model/            // Entidades de dominio
-        │   ├── repository/       // Interfaces de repositorio (puertos de persistencia)
-        │   ├── service/          // Servicios de dominio (lógica de negocio)
-        │   └── exception/        // Excepciones de dominio
-        ├── infrastructure/       // Capa de infraestructura (adaptadores)
-        │   ├── persistence/      // Adaptadores de persistencia (JPA)
-        │   │   ├── entity/       // Entidades de persistencia
-        │   │   ├── repository/   // Implementaciones JPA de repositorios
-        │   │   └── mapper/       // Mappers entre dominio y persistencia
-        │   ├── web/              // Adaptadores web (controllers)
-        │   │   ├── dto/          // DTOs de API
-        │   │   ├── mapper/       // Mappers entre aplicación y API
-        │   │   └── exception/    // Manejo de excepciones HTTP
-        │   └── config/           // Configuraciones (OpenAPI, seguridad, etc.)
+        ├── application/                                    // Capa de aplicación (Casos de uso)
+        │   ├── dto/                                        // Data Transfer Objects
+        │   ├── port/                                       // Puertos (interfaces hacia el exterior)
+        │   └── service/                                    // Servicios de aplicación (coordinadores)
+        ├── domain/                                         // Capa de dominio (núcleo del negocio)
+        │   ├── exception/                                  // Excepciones de dominio
+        │   │   ├── ConcurrentUpdateException.java
+        │   │   ├── InsufficientStockException.java
+        │   │   ├── InventoryException.java
+        │   │   └── StockValidationException.java
+        │   ├── model/                                      // Entidades de dominio
+        │   │   ├── EventStatus.java
+        │   │   ├── InventoryItem.java
+        │   │   ├── InventoryUpdateEvent.java
+        │   │   ├── Product.java
+        │   │   ├── Store.java
+        │   │   └── UpdateType.java
+        │   ├── repository/                                 // Interfaces de repositorio (puertos de persistencia)
+        │   │   ├── InventoryEventRepository.java
+        │   │   └── InventoryRepository.java
+        │   └── service/                                    // Servicios de dominio (lógica de negocio)
+        │       └── InventoryService.java
+        ├── infrastructure/                                 // Capa de infraestructura (adaptadores)
+        │   ├── config/                                     // Configuraciones (OpenAPI, seguridad, etc.)
+        │   │   ├── R2dbcConfig.java
+        │   │   └── RetryConfig.java
+        │   ├── persistence/                                // Adaptadores de persistencia (JPA)
+        │   │   ├── entity/                                 // Entidades de persistencia
+        │   │   │   └── InventoryEntity.java
+        │   │   ├── mapper/                                 // Mappers entre dominio y persistencia
+        │   │   │   └── InventoryMapper.java
+        │   │   └── repository/                             // Implementaciones JPA de repositorios
+        │   │       ├── InventoryRepositoryImpl.java
+        │   │       ├── ReactiveInventoryJpaRepository.java
+        │   │       └── SpringDataInventoryRepository.java
+        │   └── web/                                        // Adaptadores web (controllers)
+        │       ├── dto/                                    // DTOs de API
+        │       ├── mapper/                                 // Mappers entre aplicación y API
+        │       └── exception/                              // Manejo de excepciones HTTP
         └── DistributedInventoryManagementServiceApplication.java
 ```
 
