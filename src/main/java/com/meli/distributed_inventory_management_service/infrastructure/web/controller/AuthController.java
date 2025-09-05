@@ -20,14 +20,16 @@ public class AuthController {
     private static final String ADMIN = "ADMIN";
     private static final String USER = "USER";
     private static final String PASSWORD = "password";
-    private static final int MILLISECONDS_TO_SECOND = 1000;
+    private static final String BEARER = "Bearer";
+    public static final long EXPIRES_IN = 3600L;
+
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public Mono<ResponseEntity<AuthResponseDTO>> login(@Valid @RequestBody AuthRequestDTO request) {
-        if (ADMIN.toLowerCase().equals(request.username()) && PASSWORD.equals(request.password())) {
+        if (ADMIN.equalsIgnoreCase(request.username()) && PASSWORD.equals(request.password())) {
             String token = jwtUtil.generateToken(request.username(), List.of(ADMIN, USER));
-            AuthResponseDTO response = new AuthResponseDTO(token, jwtUtil.getExpiration() / MILLISECONDS_TO_SECOND, request.username());
+            AuthResponseDTO response = new AuthResponseDTO(token, BEARER, EXPIRES_IN, request.username());
             return Mono.just(ResponseEntity.ok(response));
         } else {
             return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
