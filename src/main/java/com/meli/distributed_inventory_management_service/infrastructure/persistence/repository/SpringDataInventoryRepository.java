@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 public class SpringDataInventoryRepository implements InventoryRepository {
 
-    public static final int errorNumberOfRowsUpdated = 0;
+    private static final int errorNumberOfRowsUpdated = 0;
     private final ReactiveInventoryJpaRepository jpaRepository;
     private final DatabaseClient databaseClient;
     private final InventoryMapper inventoryMapper;

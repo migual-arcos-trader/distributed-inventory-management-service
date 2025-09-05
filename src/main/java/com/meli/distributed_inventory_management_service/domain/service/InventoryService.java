@@ -15,13 +15,13 @@ import reactor.core.publisher.Mono;
 @Service
 public class InventoryService {
 
-    public static final int DELAY = 100;
-    public static final int MAX_ATTEMPTS = 5;
-    public static final int MAX_AVAILABLE_STOCK = 1000;
-    public static final int MAX_DELAY = 1000;
-    public static final int MIN_AVAILABLE_STOCK = 0;
-    public static final int MULTIPLIER = 2;
-    public static final long VERSION_DEFAULT = 0L;
+    private static final int DELAY = 100;
+    private static final int MAX_ATTEMPTS = 5;
+    private static final int MAX_AVAILABLE_STOCK = 1000;
+    private static final int MAX_DELAY = 1000;
+    private static final int MIN_AVAILABLE_STOCK = 0;
+    private static final int MULTIPLIER = 2;
+    private static final long VERSION_DEFAULT = 0L;
 
     private final InventoryRepository inventoryRepository;
 

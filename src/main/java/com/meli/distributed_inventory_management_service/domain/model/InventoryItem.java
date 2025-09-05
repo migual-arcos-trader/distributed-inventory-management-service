@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Builder
 public class InventoryItem {
 
-    public static final int MIN_AVAILABLE_STOCK = 0;
-    public static final int PLUS_VERSION = 1;
+    private static final int MIN_AVAILABLE_STOCK = 0;
+    private static final int PLUS_VERSION = 1;
 
     String id;
     String productId;
