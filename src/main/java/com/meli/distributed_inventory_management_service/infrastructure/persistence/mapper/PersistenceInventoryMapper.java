@@ -16,9 +16,9 @@ import java.util.Objects;
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL
 )
-public interface InventoryMapper {
+public interface PersistenceInventoryMapper {
 
-    InventoryMapper INSTANCE = Mappers.getMapper(InventoryMapper.class);
+    PersistenceInventoryMapper INSTANCE = Mappers.getMapper(PersistenceInventoryMapper.class);
 
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

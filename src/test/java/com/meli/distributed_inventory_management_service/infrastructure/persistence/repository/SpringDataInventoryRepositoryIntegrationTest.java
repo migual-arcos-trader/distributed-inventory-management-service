@@ -3,7 +3,7 @@ package com.meli.distributed_inventory_management_service.infrastructure.persist
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItemMother;
 import com.meli.distributed_inventory_management_service.infrastructure.config.database.TestContainersConfig;
-import com.meli.distributed_inventory_management_service.infrastructure.config.database.TestMapperConfig;
+import com.meli.distributed_inventory_management_service.infrastructure.config.database.TestPersistenceMapperConfig;
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntity;
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntityMother;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataR2dbcTest
-@Import({TestContainersConfig.class, SpringDataInventoryRepository.class, TestMapperConfig.class})
+@Import({TestContainersConfig.class, SpringDataInventoryRepository.class, TestPersistenceMapperConfig.class})
 @ActiveProfiles("testcontainers")
 class SpringDataInventoryRepositoryIntegrationTest {
 

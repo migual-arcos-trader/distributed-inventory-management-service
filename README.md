@@ -125,7 +125,7 @@ distributed-inventory-management-service/
 │   │   │   ├── entity/                                    # Entidades de persistencia
 │   │   │   │   └── InventoryEntity.java
 │   │   │   ├── mapper/                                    # Mappers
-│   │   │   │   └── InventoryMapper.java
+│   │   │   │   └── PersistenceInventoryMapper.java
 │   │   │   └── repository/                                # Implementaciones de repositorios
 │   │   │       ├── ReactiveInventoryJpaRepository.java
 │   │   │       └── SpringDataInventoryRepository.java     
@@ -136,9 +136,12 @@ distributed-inventory-management-service/
 │   │       ├── dto/                                       # DTOs de API
 │   │       │   ├── AuthRequestDTO.java                    
 │   │       │   ├── AuthResponseDTO.java                   
-│   │       │   └── InventoryRequestDTO.java               
+│   │       │   ├── InventoryRequestDTO.java
+│   │       │   ├── InventoryResponseDTO.java
+│   │       │   └── StockUpdateRequestDTO.java               
 │   │       ├── mapper/                                    # Mappers API
 │   │       └── exception/                                 # Manejo de excepciones HTTP
+│   │           └── GlobalExceptionHandler.java 
 │   └── DistributedInventoryManagementServiceApplication.java
 ├── src/main/resources/
 │   ├── application.properties                             # Configuración principal
@@ -156,7 +159,7 @@ distributed-inventory-management-service/
         │   ├── database/
         │   │   ├── TestContainersConfig.java
         │   │   ├── TestDatabaseConfig.java
-        │   │   └── TestMapperConfig.java
+        │   │   └── TestPersistenceMapperConfig.java
         │   └── security/
         │       ├── AuthObjectMother.java
         │       ├── JwtAuthConverterTest.java
@@ -169,7 +172,7 @@ distributed-inventory-management-service/
         │   │   └── InventoryEntityMother.java
         │   ├── mapper/
         │   │   ├── EntityTestFactory.java
-        │   │   ├── InventoryMapperTest.java
+        │   │   ├── PersistenceInventoryMapperTest.java
         │   │   └── MapperTestConstants.java
         │   └── repository/
         │       ├── IntegrationTestsConstants.java

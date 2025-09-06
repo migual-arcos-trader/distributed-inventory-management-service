@@ -4,7 +4,7 @@ import com.meli.distributed_inventory_management_service.domain.exception.Concur
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.repository.InventoryRepository;
 import com.meli.distributed_inventory_management_service.infrastructure.persistence.entity.InventoryEntity;
-import com.meli.distributed_inventory_management_service.infrastructure.persistence.mapper.InventoryMapper;
+import com.meli.distributed_inventory_management_service.infrastructure.persistence.mapper.PersistenceInventoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -20,38 +20,38 @@ public class SpringDataInventoryRepository implements InventoryRepository {
     private static final int errorNumberOfRowsUpdated = 0;
     private final ReactiveInventoryJpaRepository jpaRepository;
     private final DatabaseClient databaseClient;
-    private final InventoryMapper inventoryMapper;
+    private final PersistenceInventoryMapper persistenceInventoryMapper;
 
     @Override
     public Mono<InventoryItem> findById(String id) {
         return jpaRepository.findById(id)
-                .map(inventoryMapper::toDomain);
+                .map(persistenceInventoryMapper::toDomain);
     }
 
     @Override
     public Mono<InventoryItem> findByProductAndStore(String productId, String storeId) {
         return jpaRepository.findByProductIdAndStoreId(productId, storeId)
-                .map(inventoryMapper::toDomain);
+                .map(persistenceInventoryMapper::toDomain);
     }
 
     @Override
     public Flux<InventoryItem> findByStore(String storeId) {
         return jpaRepository.findByStoreId(storeId)
-                .map(inventoryMapper::toDomain);
+                .map(persistenceInventoryMapper::toDomain);
     }
 
     @Override
     public Flux<InventoryItem> findByProduct(String productId) {
         return jpaRepository.findByProductId(productId)
-                .map(inventoryMapper::toDomain);
+                .map(persistenceInventoryMapper::toDomain);
     }
 
     @Override
     @Transactional
     public Mono<InventoryItem> save(InventoryItem item) {
-        InventoryEntity entity = inventoryMapper.toEntity(item);
+        InventoryEntity entity = persistenceInventoryMapper.toEntity(item);
         return jpaRepository.save(entity)
-                .map(inventoryMapper::toDomain);
+                .map(persistenceInventoryMapper::toDomain);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class SpringDataInventoryRepository implements InventoryRepository {
     @Transactional
     public Mono<InventoryItem> updateWithVersionCheck(InventoryItem item, Long expectedVersion) {
         return Mono.defer(() -> {
-            InventoryEntity entity = inventoryMapper.toEntity(item);
+            InventoryEntity entity = persistenceInventoryMapper.toEntity(item);
 
             return jpaRepository.findById(item.getId())
                     .flatMap(existingEntity -> {
@@ -78,7 +78,7 @@ public class SpringDataInventoryRepository implements InventoryRepository {
                         }
                         return jpaRepository.save(entity);
                     })
-                    .map(inventoryMapper::toDomain);
+                    .map(persistenceInventoryMapper::toDomain);
         });
     }
 
@@ -119,7 +119,7 @@ public class SpringDataInventoryRepository implements InventoryRepository {
                     }
                     return jpaRepository.findById(item.getId());
                 })
-                .map(inventoryMapper::toDomain);
+                .map(persistenceInventoryMapper::toDomain);
     }
 
     public Mono<Integer> updateStockWithVersion(String id, Integer newStock, Long version) {
@@ -128,7 +128,7 @@ public class SpringDataInventoryRepository implements InventoryRepository {
 
     public Flux<InventoryItem> findLowStockItems(String storeId, Integer threshold) {
         return jpaRepository.findLowStockItems(storeId, threshold)
-                .map(inventoryMapper::toDomain);
+                .map(persistenceInventoryMapper::toDomain);
     }
 
     public Mono<Integer> reserveStockWithVersion(String id, Integer quantity, Long version) {

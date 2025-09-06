@@ -12,13 +12,13 @@ import static com.meli.distributed_inventory_management_service.infrastructure.p
 import static com.meli.distributed_inventory_management_service.infrastructure.persistence.mapper.MapperTestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class InventoryMapperTest {
+class PersistenceInventoryMapperTest {
 
-    private InventoryMapper inventoryMapper;
+    private PersistenceInventoryMapper persistenceInventoryMapper;
 
     @BeforeEach
     void setUp() {
-        inventoryMapper = InventoryMapper.INSTANCE;
+        persistenceInventoryMapper = PersistenceInventoryMapper.INSTANCE;
     }
 
     @Test
@@ -28,7 +28,7 @@ class InventoryMapperTest {
         InventoryItem domain = basicItem();
 
         // Act
-        InventoryEntity entity = inventoryMapper.toEntity(domain);
+        InventoryEntity entity = persistenceInventoryMapper.toEntity(domain);
 
         // Assert
         assertNotNull(entity, "Entity should not be null");
@@ -46,7 +46,7 @@ class InventoryMapperTest {
         InventoryEntity entity = createBasicInventoryEntity();
 
         // Act
-        InventoryItem domain = inventoryMapper.toDomain(entity);
+        InventoryItem domain = persistenceInventoryMapper.toDomain(entity);
 
         // Assert
         assertNotNull(domain, "Domain should not be null");
@@ -66,7 +66,7 @@ class InventoryMapperTest {
         InventoryEntity entity = createInventoryEntityWithVersion(VERSION_5);
 
         // Act & Assert
-        assertDoesNotThrow(() -> inventoryMapper.toDomainWithVersion(entity, VERSION_5),
+        assertDoesNotThrow(() -> persistenceInventoryMapper.toDomainWithVersion(entity, VERSION_5),
                 "Should not throw exception when versions match");
     }
 
@@ -77,8 +77,8 @@ class InventoryMapperTest {
         InventoryEntity entity = createBasicInventoryEntity();
 
         // Act
-        InventoryItem domain = inventoryMapper.toDomain(entity);
-        InventoryEntity mappedBackEntity = inventoryMapper.toEntity(domain);
+        InventoryItem domain = persistenceInventoryMapper.toDomain(entity);
+        InventoryEntity mappedBackEntity = persistenceInventoryMapper.toEntity(domain);
 
         // Assert
         assertNotNull(domain, "Domain should not be null");
@@ -100,7 +100,7 @@ class InventoryMapperTest {
         // Act & Assert
         OptimisticLockingFailureException exception = assertThrows(
                 OptimisticLockingFailureException.class,
-                () -> inventoryMapper.toDomainWithVersion(entity, VERSION_10),
+                () -> persistenceInventoryMapper.toDomainWithVersion(entity, VERSION_10),
                 "Should throw OptimisticLockingFailureException when versions mismatch"
         );
 
@@ -112,7 +112,7 @@ class InventoryMapperTest {
     @DisplayName("Should return null when entity is null")
     void shouldReturnNullWhenEntityIsNull() {
         // Act
-        InventoryItem result = inventoryMapper.toDomain(null);
+        InventoryItem result = persistenceInventoryMapper.toDomain(null);
 
         // Assert
         assertNull(result, "Should return null for null entity");
@@ -122,7 +122,7 @@ class InventoryMapperTest {
     @DisplayName("Should return null when domain is null")
     void shouldReturnNullWhenDomainIsNull() {
         // Act
-        InventoryEntity result = inventoryMapper.toEntity(null);
+        InventoryEntity result = persistenceInventoryMapper.toEntity(null);
 
         // Assert
         assertNull(result, "Should return null for null domain");
@@ -133,7 +133,7 @@ class InventoryMapperTest {
     void shouldThrowExceptionWhenEntityIsNullInVersionCheck() {
         // Act & Assert
         assertThrows(NullPointerException.class,
-                () -> inventoryMapper.toDomainWithVersion(null, 1L),
+                () -> persistenceInventoryMapper.toDomainWithVersion(null, 1L),
                 "Should throw NullPointerException for null entity in version check");
     }
 
@@ -145,7 +145,7 @@ class InventoryMapperTest {
 
         // Act & Assert
         assertThrows(NullPointerException.class,
-                () -> inventoryMapper.toDomainWithVersion(entity, null),
+                () -> persistenceInventoryMapper.toDomainWithVersion(entity, null),
                 "Should throw NullPointerException for null expected version");
     }
 
@@ -178,7 +178,7 @@ class InventoryMapperTest {
         InventoryEntity minimalEntity = createMinimalInventoryEntity(customId, customVersion);
 
         // Act
-        InventoryItem domain = inventoryMapper.toDomain(minimalEntity);
+        InventoryItem domain = persistenceInventoryMapper.toDomain(minimalEntity);
 
         // Assert
         assertNotNull(domain, "Domain should not be null");
