@@ -23,6 +23,12 @@ public class SpringDataInventoryRepository implements InventoryRepository {
     private final PersistenceInventoryMapper persistenceInventoryMapper;
 
     @Override
+    public Flux<InventoryItem> findAll() {
+        return jpaRepository.findAll()
+                .map(persistenceInventoryMapper::toDomain);
+    }
+
+    @Override
     public Mono<InventoryItem> findById(String id) {
         return jpaRepository.findById(id)
                 .map(persistenceInventoryMapper::toDomain);
@@ -155,4 +161,5 @@ public class SpringDataInventoryRepository implements InventoryRepository {
                         ))
                 );
     }
+
 }

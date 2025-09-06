@@ -8,6 +8,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -99,6 +100,30 @@ public class InventoryService {
     public Mono<InventoryItem> updateStockWithoutRetry(String productId, String storeId,
                                                        Integer quantity, UpdateType updateType) {
         return updateStockWithRetry(productId, storeId, quantity, updateType);
+    }
+
+    public Flux<InventoryItem> getAllInventory() {
+        return inventoryRepository.findAll();
+    }
+
+    public Mono<InventoryItem> getInventoryById(String id) {
+        return inventoryRepository.findById(id);
+    }
+
+    public Flux<InventoryItem> getInventoryByStore(String storeId) {
+        return inventoryRepository.findByStore(storeId);
+    }
+
+    public Flux<InventoryItem> getInventoryByProduct(String productId) {
+        return inventoryRepository.findByProduct(productId);
+    }
+
+    public Mono<Boolean> deleteInventory(String id) {
+        return inventoryRepository.delete(id);
+    }
+
+    public Mono<Boolean> existsByProductAndStore(String productId, String storeId) {
+        return inventoryRepository.existsByProductAndStore(productId, storeId);
     }
 
 }

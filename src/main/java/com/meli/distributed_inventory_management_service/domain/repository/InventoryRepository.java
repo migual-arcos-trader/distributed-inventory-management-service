@@ -6,6 +6,8 @@ import reactor.core.publisher.Mono;
 
 public interface InventoryRepository {
 
+    Flux<InventoryItem> findAll();
+
     Mono<InventoryItem> findById(String id);
 
     Mono<InventoryItem> findByProductAndStore(String productId, String storeId);

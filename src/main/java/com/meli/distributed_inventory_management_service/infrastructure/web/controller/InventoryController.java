@@ -25,31 +25,32 @@ public class InventoryController {
 
     @GetMapping
     public Flux<InventoryResponseDTO> getAllInventory() {
-        // TODO: Implementar cuando el service tenga método para obtener todos
-        return Flux.empty();
+        return inventoryService.getAllInventory()
+                .map(webInventoryMapper::toResponseDTO);
     }
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<InventoryResponseDTO>> getInventoryById(@PathVariable String id) {
-        // TODO: Implementar cuando el service tenga método findById
-        return Mono.just(ResponseEntity.notFound().build());
+        return inventoryService.getInventoryById(id)
+                .map(webInventoryMapper::toResponseDTO)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/store/{storeId}")
     public Flux<InventoryResponseDTO> getInventoryByStore(@PathVariable String storeId) {
-        // TODO: Implementar cuando el service tenga método findByStore
-        return Flux.empty();
+        return inventoryService.getInventoryByStore(storeId)
+                .map(webInventoryMapper::toResponseDTO);
     }
 
     @GetMapping("/product/{productId}")
     public Flux<InventoryResponseDTO> getInventoryByProduct(@PathVariable String productId) {
-        // TODO: Implementar cuando el service tenga método findByProduct
-        return Flux.empty();
+        return inventoryService.getInventoryByProduct(productId)
+                .map(webInventoryMapper::toResponseDTO);
     }
 
     @PostMapping
     public Mono<ResponseEntity<InventoryResponseDTO>> createInventory(@Valid @RequestBody InventoryRequestDTO request) {
-        // Crear item con stock inicial usando RESTOCK (establece stock exacto)
         return inventoryService.updateStockWithRetry(
                         request.productId(),
                         request.storeId(),
@@ -141,7 +142,10 @@ public class InventoryController {
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteInventory(@PathVariable String id) {
-        // TODO: Implementar cuando el service tenga método delete
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build());
+        return inventoryService.deleteInventory(id)
+                .map(deleted -> deleted ?
+                        ResponseEntity.noContent().build() :
+                        ResponseEntity.notFound().build());
     }
+
 }
