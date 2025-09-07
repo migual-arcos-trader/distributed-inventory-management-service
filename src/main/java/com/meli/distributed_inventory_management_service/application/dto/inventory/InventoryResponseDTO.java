@@ -1,7 +1,10 @@
 package com.meli.distributed_inventory_management_service.application.dto.inventory;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
+@Builder
 public record InventoryResponseDTO(
         String id,
         String productId,

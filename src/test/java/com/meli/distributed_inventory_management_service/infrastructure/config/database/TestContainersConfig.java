@@ -1,26 +1,23 @@
 package com.meli.distributed_inventory_management_service.infrastructure.config.database;
 
-import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
-import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
+import org.springframework.context.annotation.Primary;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration
 public class TestContainersConfig {
 
     @Bean
-    public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
-        ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
-        initializer.setConnectionFactory(connectionFactory);
+    @Primary
+    public GenericContainer<?> h2Container() {
+        // Para tests que necesiten un container real, aunque usemos H2 en memoria
+        GenericContainer<?> container = new GenericContainer<>(DockerImageName.parse("oscarfonts/h2"))
+                .withExposedPorts(1521)
+                .withEnv("H2_OPTIONS", "-ifNotExists");
 
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("schema.sql"));
-        populator.addScript(new ClassPathResource("data-test.sql"));
-
-        initializer.setDatabasePopulator(populator);
-        return initializer;
+        container.start();
+        return container;
     }
-
 }

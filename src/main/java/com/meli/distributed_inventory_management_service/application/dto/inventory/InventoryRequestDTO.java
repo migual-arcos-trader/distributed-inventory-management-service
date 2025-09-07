@@ -3,9 +3,11 @@ package com.meli.distributed_inventory_management_service.application.dto.invent
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Builder;
 
 import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
 
+@Builder
 public record InventoryRequestDTO(
         @NotBlank(message = VALIDATION_PRODUCT_ID_REQUIRED)
         String productId,

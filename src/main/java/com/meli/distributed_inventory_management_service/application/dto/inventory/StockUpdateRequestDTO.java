@@ -4,9 +4,11 @@ import com.meli.distributed_inventory_management_service.domain.model.UpdateType
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.Builder;
 
 import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
 
+@Builder
 public record StockUpdateRequestDTO(
         @NotBlank(message = VALIDATION_PRODUCT_ID_REQUIRED)
         String productId,
