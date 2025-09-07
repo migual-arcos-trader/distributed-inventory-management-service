@@ -15,9 +15,6 @@ El enunciado es el siguiente
 ```
 📋 RESUMEN COMPLETO DEL CHAT - Distributed Inventory Management Service
 
-🔗 Enlaces de chats anteriores:
-[listado de URLs de chats previos]
-
 🎯 ESTADO ACTUAL DEL PROYECTO:
 ✅ COMPLETADO:
 Arquitectura Hexagonal implementada correctamente
