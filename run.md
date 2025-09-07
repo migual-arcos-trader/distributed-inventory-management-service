@@ -64,7 +64,7 @@ docker-compose down
 docker-compose down -v --rmi all
 ```
 
-## 🛠 Ejecución local con Maven + Docker
+## 🛠 Ejecución Maven + Docker
 
 ### Prerrequisitos
 - Java 17
