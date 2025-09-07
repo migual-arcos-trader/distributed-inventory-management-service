@@ -1,7 +1,6 @@
 package com.meli.distributed_inventory_management_service.infrastructure.web.controller;
 
-import com.meli.distributed_inventory_management_service.domain.model.UpdateType;
-import com.meli.distributed_inventory_management_service.domain.service.InventoryService;
+import com.meli.distributed_inventory_management_service.application.service.InventoryApplicationService;
 import com.meli.distributed_inventory_management_service.infrastructure.web.dto.InventoryRequestDTO;
 import com.meli.distributed_inventory_management_service.infrastructure.web.dto.InventoryResponseDTO;
 import com.meli.distributed_inventory_management_service.infrastructure.web.dto.StockUpdateRequestDTO;
@@ -20,45 +19,46 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class InventoryController {
 
-    private final InventoryService inventoryService;
+    private final InventoryApplicationService inventoryApplicationService;
     private final WebInventoryMapper webInventoryMapper;
 
     @GetMapping
     public Flux<InventoryResponseDTO> getAllInventory() {
-        return inventoryService.getAllInventory()
+        return inventoryApplicationService.getAllInventory()
                 .map(webInventoryMapper::toResponseDTO);
     }
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<InventoryResponseDTO>> getInventoryById(@PathVariable String id) {
-        return inventoryService.getInventoryById(id)
+        return inventoryApplicationService.getInventoryById(id)
                 .map(webInventoryMapper::toResponseDTO)
                 .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.noContent().build());
-    }
-
-    @GetMapping("/product/{productId}")
-    public Flux<InventoryResponseDTO> getInventoryByProduct(@PathVariable String productId) {
-        return inventoryService.getInventoryByProduct(productId)
-                .map(webInventoryMapper::toResponseDTO);
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/store/{storeId}")
     public Flux<InventoryResponseDTO> getInventoryByStore(@PathVariable String storeId) {
-        return inventoryService.getInventoryByStore(storeId)
+        return inventoryApplicationService.getInventoryByStore(storeId)
+                .map(webInventoryMapper::toResponseDTO);
+    }
+
+    @GetMapping("/product/{productId}")
+    public Flux<InventoryResponseDTO> getInventoryByProduct(@PathVariable String productId) {
+        return inventoryApplicationService.getInventoryByProduct(productId)
                 .map(webInventoryMapper::toResponseDTO);
     }
 
     @PostMapping
     public Mono<ResponseEntity<InventoryResponseDTO>> createInventory(@Valid @RequestBody InventoryRequestDTO request) {
-        return inventoryService.updateStockWithRetry(
+        return inventoryApplicationService.createInventory(
                         request.productId(),
                         request.storeId(),
-                        request.currentStock(),
-                        UpdateType.RESTOCK
+                        request.currentStock()
                 )
                 .map(webInventoryMapper::toResponseDTO)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
+                .onErrorResume(IllegalArgumentException.class,
+                        error -> Mono.just(ResponseEntity.badRequest().build()))
                 .onErrorResume(error -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
     }
 
@@ -68,7 +68,7 @@ public class InventoryController {
             @RequestParam String storeId,
             @Valid @RequestBody StockUpdateRequestDTO request) {
 
-        return inventoryService.updateStockWithRetry(
+        return inventoryApplicationService.updateStockWithRetry(
                         productId,
                         storeId,
                         request.quantity(),
@@ -76,12 +76,9 @@ public class InventoryController {
                 )
                 .map(webInventoryMapper::toResponseDTO)
                 .map(ResponseEntity::ok)
-                .onErrorResume(error -> {
-                    if (error instanceof IllegalArgumentException) {
-                        return Mono.just(ResponseEntity.badRequest().build());
-                    }
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                });
+                .onErrorResume(IllegalArgumentException.class,
+                        error -> Mono.just(ResponseEntity.badRequest().build()))
+                .onErrorResume(error -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
     }
 
     @PostMapping("/{productId}/{storeId}/reserve")
@@ -90,7 +87,7 @@ public class InventoryController {
             @PathVariable String storeId,
             @RequestParam @Valid @Positive Integer quantity) {
 
-        return inventoryService.reserveStock(productId, storeId, quantity)
+        return inventoryApplicationService.reserveStock(productId, storeId, quantity)
                 .map(webInventoryMapper::toResponseDTO)
                 .map(ResponseEntity::ok)
                 .onErrorResume(error -> {
@@ -107,7 +104,7 @@ public class InventoryController {
             @PathVariable String storeId,
             @RequestParam @Valid @Positive Integer quantity) {
 
-        return inventoryService.releaseReservedStock(productId, storeId, quantity)
+        return inventoryApplicationService.releaseReservedStock(productId, storeId, quantity)
                 .map(webInventoryMapper::toResponseDTO)
                 .map(ResponseEntity::ok)
                 .onErrorResume(error -> {
@@ -123,7 +120,7 @@ public class InventoryController {
             @PathVariable String productId,
             @PathVariable String storeId) {
 
-        return inventoryService.getAvailableStock(productId, storeId)
+        return inventoryApplicationService.getAvailableStock(productId, storeId)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.ok(0));
     }
@@ -134,7 +131,7 @@ public class InventoryController {
             @PathVariable String storeId,
             @RequestParam @Valid @Positive Integer quantity) {
 
-        return inventoryService.getAvailableStock(productId, storeId)
+        return inventoryApplicationService.getAvailableStock(productId, storeId)
                 .map(available -> available >= quantity && available > 0)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.ok(false));
@@ -142,7 +139,7 @@ public class InventoryController {
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteInventory(@PathVariable String id) {
-        return inventoryService.deleteInventory(id)
+        return inventoryApplicationService.deleteInventory(id)
                 .map(deleted -> deleted ?
                         ResponseEntity.noContent().build() :
                         ResponseEntity.notFound().build());

@@ -9,15 +9,15 @@
 - Docker Compose 2.0+
 
 ```bash
-# Construir el JAR ejecutable
+# Construcción del JAR ejecutable ... ...
 mvn clean package
 ```
 ```bash
-# Construir y ejecutar con Docker Compose
+# Construcción y ejecución con Docker Compose ...
 docker-compose up --build
 ```
 ```bash
-# Limpiar completamente (containers, volúmenes, imágenes)
+# Limpieza completa (containers, volúmenes, imágenes) ...
 docker-compose down -v --rmi all
 ```
 
@@ -30,11 +30,11 @@ docker-compose down -v --rmi all
 ### Comandos Maven para construir el JAR
 ```bash
 # Compilar y ejecutar la aplicación localmente
-mvn clean spring-boot:run
+mvn clean package spring-boot:run
 ```
 
 ```bash
-# Construir el JAR ejecutable
+# Construcción del JAR ejecutable ...
 mvn clean package
 ```
 
@@ -61,7 +61,7 @@ mvn clean compile
 
 ### Comandos de ejecución
 ```bash
-# Construir y ejecutar con Docker Compose
+# Construcción y ejecución con Docker Compose
 docker-compose up --build
 ```
 
