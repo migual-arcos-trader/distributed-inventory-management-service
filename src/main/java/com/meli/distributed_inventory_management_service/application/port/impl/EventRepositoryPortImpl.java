@@ -1,0 +1,62 @@
+package com.meli.distributed_inventory_management_service.application.port.impl;
+
+import com.meli.distributed_inventory_management_service.application.port.EventRepositoryPort;
+import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
+import com.meli.distributed_inventory_management_service.domain.model.EventStatus;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
+
+@Component
+public class EventRepositoryPortImpl implements EventRepositoryPort {
+
+    private final Map<String, InventoryUpdateEvent> eventStore = new ConcurrentHashMap<>();
+
+    @Override
+    public Mono<InventoryUpdateEvent> save(InventoryUpdateEvent event) {
+        eventStore.put(event.getEventId(), event);
+        return Mono.just(event);
+    }
+
+    @Override
+    public Mono<InventoryUpdateEvent> findById(String eventId) {
+        return Mono.justOrEmpty(eventStore.get(eventId));
+    }
+
+    @Override
+    public Flux<InventoryUpdateEvent> findAll() {
+        return Flux.fromIterable(eventStore.values());
+    }
+
+    @Override
+    public Flux<InventoryUpdateEvent> findByStatus(String status) {
+        return Flux.fromIterable(eventStore.values())
+                .filter(event -> event.getStatus().name().equals(status));
+    }
+
+    @Override
+    public Mono<InventoryUpdateEvent> updateStatus(String eventId, String status, String errorDetails) {
+        return findById(eventId)
+                .map(event -> {
+                    InventoryUpdateEvent updatedEvent = event.withStatus(
+                            EventStatus.valueOf(status)
+                    );
+                    if (errorDetails != null) {
+                        updatedEvent = updatedEvent.withError(errorDetails);
+                    }
+                    eventStore.put(eventId, updatedEvent);
+                    return updatedEvent;
+                });
+    }
+
+    @Override
+    public Flux<InventoryUpdateEvent> findByCorrelationId(String correlationId) {
+        return Flux.fromIterable(eventStore.values())
+                .filter(event -> correlationId.equals(event.getCorrelationId()));
+    }
+}

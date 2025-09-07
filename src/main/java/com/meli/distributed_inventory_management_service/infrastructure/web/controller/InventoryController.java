@@ -1,9 +1,9 @@
 package com.meli.distributed_inventory_management_service.infrastructure.web.controller;
 
+import com.meli.distributed_inventory_management_service.application.dto.inventory.InventoryRequestDTO;
+import com.meli.distributed_inventory_management_service.application.dto.inventory.InventoryResponseDTO;
+import com.meli.distributed_inventory_management_service.application.dto.inventory.StockUpdateRequestDTO;
 import com.meli.distributed_inventory_management_service.application.service.InventoryApplicationService;
-import com.meli.distributed_inventory_management_service.infrastructure.web.dto.InventoryRequestDTO;
-import com.meli.distributed_inventory_management_service.infrastructure.web.dto.InventoryResponseDTO;
-import com.meli.distributed_inventory_management_service.infrastructure.web.dto.StockUpdateRequestDTO;
 import com.meli.distributed_inventory_management_service.infrastructure.web.mapper.WebInventoryMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;

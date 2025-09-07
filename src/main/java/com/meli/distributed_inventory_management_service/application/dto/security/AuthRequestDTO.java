@@ -1,4 +1,4 @@
-package com.meli.distributed_inventory_management_service.infrastructure.web.dto;
+package com.meli.distributed_inventory_management_service.application.dto.security;
 
 import jakarta.validation.constraints.NotBlank;
 

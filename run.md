@@ -3,6 +3,7 @@
 ## 🛠 Ejecución Maven + Docker
 
 ### Prerrequisitos
+
 - Java 17
 - Maven 3.6+
 - Docker 20.10+
@@ -12,10 +13,12 @@
 # Construcción del JAR ejecutable ... ...
 mvn clean package
 ```
+
 ```bash
 # Construcción y ejecución con Docker Compose ...
 docker-compose up --build
 ```
+
 ```bash
 # Limpieza completa (containers, volúmenes, imágenes) ...
 docker-compose down -v --rmi all
@@ -24,10 +27,12 @@ docker-compose down -v --rmi all
 ## 🛠 Ejecución local con Maven (Desarrollo)
 
 ### Prerrequisitos
+
 - Java 17
 - Maven 3.6+
 
 ### Comandos Maven para construir el JAR
+
 ```bash
 # Compilar y ejecutar la aplicación localmente
 mvn clean package spring-boot:run
@@ -56,10 +61,12 @@ mvn clean compile
 ## 📦 Ejecución con Docker (Recomendado para producción)
 
 ### Prerrequisitos
+
 - Docker 20.10+
 - Docker Compose 2.0+
 
 ### Comandos de ejecución
+
 ```bash
 # Construcción y ejecución con Docker Compose
 docker-compose up --build
@@ -88,6 +95,7 @@ docker-compose down -v --rmi all
 ## 🌐 URLs de la aplicación
 
 ### Una vez ejecutada de forma local, accede a:
+
 - **🔌 API REST**: http://localhost:8080/api
 - **📚 Swagger UI**: http://localhost:8080/swagger-ui
 - **📊 H2 Console**: http://localhost:8080/h2-console
@@ -95,6 +103,7 @@ docker-compose down -v --rmi all
 - **📝 API Docs**: http://localhost:8080/api-docs
 
 ### Configuración H2 Console:
+
 - **JDBC URL**: `jdbc:h2:mem:///inventorydb`
 - **User**: `sa`
 - **Password**: (dejar vacío)
@@ -102,6 +111,7 @@ docker-compose down -v --rmi all
 ## 🔐 Autenticación JWT
 
 ### Obtener token de acceso
+
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \\
 -H "Content-Type: application/json" \\
@@ -109,6 +119,7 @@ curl -X POST http://localhost:8080/api/auth/login \\
 ```
 
 ### Usar token en requests
+
 ```bash
 curl -X GET http://localhost:8080/api/inventory \\
 -H "Authorization: Bearer <TU_TOKEN_JWT>"
@@ -117,6 +128,7 @@ curl -X GET http://localhost:8080/api/inventory \\
 ## 🐛 Troubleshooting
 
 ### Puerto ocupado
+
 ```bash
 # Ver procesos usando puerto 8080
 lsof -i :8080
@@ -129,6 +141,7 @@ kill -9 <PID>
 ```
 
 ### Problemas de Maven
+
 ```bash
 # Limpiar cache de Maven
 mvn clean
@@ -141,6 +154,7 @@ mvn validate
 ```
 
 ### Problemas de Docker
+
 ```bash
 # Ver containers en ejecución
 docker ps
@@ -164,6 +178,7 @@ docker system prune -a
 ## 🔧 Variables de entorno configurables
 
 ### Variables para Docker
+
 ```bash
 SPRING_PROFILES_ACTIVE=docker
 SPRING_R2DBC_URL=r2dbc:h2:mem:///inventorydb

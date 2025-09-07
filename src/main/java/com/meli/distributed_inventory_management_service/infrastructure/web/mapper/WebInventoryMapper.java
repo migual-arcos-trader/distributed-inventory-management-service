@@ -1,7 +1,7 @@
 package com.meli.distributed_inventory_management_service.infrastructure.web.mapper;
 
+import com.meli.distributed_inventory_management_service.application.dto.inventory.InventoryResponseDTO;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
-import com.meli.distributed_inventory_management_service.infrastructure.web.dto.InventoryResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

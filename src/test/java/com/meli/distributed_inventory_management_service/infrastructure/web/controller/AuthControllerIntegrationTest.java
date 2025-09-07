@@ -1,7 +1,7 @@
 package com.meli.distributed_inventory_management_service.infrastructure.web.controller;
 
+import com.meli.distributed_inventory_management_service.application.dto.security.AuthRequestDTO;
 import com.meli.distributed_inventory_management_service.infrastructure.config.security.JwtUtil;
-import com.meli.distributed_inventory_management_service.infrastructure.web.dto.AuthRequestDTO;
 import com.meli.distributed_inventory_management_service.infrastructure.config.security.SecurityTestConstants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package com.meli.distributed_inventory_management_service.infrastructure.config.security;
 
-import com.meli.distributed_inventory_management_service.infrastructure.web.dto.AuthRequestDTO;
+import com.meli.distributed_inventory_management_service.application.dto.security.AuthRequestDTO;
 
 public final class AuthObjectMother {
 
