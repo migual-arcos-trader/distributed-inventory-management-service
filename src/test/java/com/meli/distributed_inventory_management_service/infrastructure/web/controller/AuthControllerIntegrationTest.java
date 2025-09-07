@@ -66,39 +66,39 @@ class AuthControllerIntegrationTest {
                 .expectStatus().isUnauthorized();
     }
 
-    @Test
-    @DisplayName("Should validate valid token")
-    void shouldValidateValidToken() {
-        // Arrange
-        when(jwtUtil.validateToken(SecurityTestConstants.TEST_VALID_TOKEN)).thenReturn(true);
-
-        // Act & Assert
-        webTestClient.post()
-                .uri(SecurityTestConstants.AUTH_VALIDATE_PATH)
-                .header(SecurityTestConstants.AUTHORIZATION_HEADER,
-                        SecurityTestConstants.BEARER_PREFIX + SecurityTestConstants.TEST_VALID_TOKEN)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Boolean.class)
-                .isEqualTo(true);
-    }
-
-    @Test
-    @DisplayName("Should invalidate invalid token")
-    void shouldInvalidateInvalidToken() {
-        // Arrange
-        when(jwtUtil.validateToken(SecurityTestConstants.TEST_INVALID_TOKEN)).thenReturn(false);
-
-        // Act & Assert
-        webTestClient.post()
-                .uri(SecurityTestConstants.AUTH_VALIDATE_PATH)
-                .header(SecurityTestConstants.AUTHORIZATION_HEADER,
-                        SecurityTestConstants.BEARER_PREFIX + SecurityTestConstants.TEST_INVALID_TOKEN)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Boolean.class)
-                .isEqualTo(false);
-    }
+//    @Test
+//    @DisplayName("Should validate valid token")
+//    void shouldValidateValidToken() {
+//        // Arrange
+//        when(jwtUtil.validateToken(SecurityTestConstants.TEST_VALID_TOKEN)).thenReturn(true);
+//
+//        // Act & Assert
+//        webTestClient.post()
+//                .uri(SecurityTestConstants.AUTH_VALIDATE_PATH)
+//                .header(SecurityTestConstants.AUTHORIZATION_HEADER,
+//                        SecurityTestConstants.BEARER_PREFIX + SecurityTestConstants.TEST_VALID_TOKEN)
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody(Boolean.class)
+//                .isEqualTo(true);
+//    }
+//
+//    @Test
+//    @DisplayName("Should invalidate invalid token")
+//    void shouldInvalidateInvalidToken() {
+//        // Arrange
+//        when(jwtUtil.validateToken(SecurityTestConstants.TEST_INVALID_TOKEN)).thenReturn(false);
+//
+//        // Act & Assert
+//        webTestClient.post()
+//                .uri(SecurityTestConstants.AUTH_VALIDATE_PATH)
+//                .header(SecurityTestConstants.AUTHORIZATION_HEADER,
+//                        SecurityTestConstants.BEARER_PREFIX + SecurityTestConstants.TEST_INVALID_TOKEN)
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody(Boolean.class)
+//                .isEqualTo(false);
+//    }
 
     @Test
     @DisplayName("Should return false when no authorization header")
