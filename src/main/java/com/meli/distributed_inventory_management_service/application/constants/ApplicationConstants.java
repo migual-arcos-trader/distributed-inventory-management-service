@@ -36,6 +36,7 @@ public class ApplicationConstants {
     public static final String VALIDATION_STORE_ID_REQUIRED = "Store ID is required";
     public static final String VALIDATION_STOCK_REQUIRED = "Current stock is required";
     public static final String VALIDATION_STOCK_POSITIVE = " must be zero or positive";
+    public static final String VALIDATION_QUANTITY_REQUIRED = "Quantity must be positive";
     public static final String VALIDATION_QUANTITY_POSITIVE = "Quantity must be positive";
     public static final String VALIDATION_RESERVATION_ID_REQUIRED = "Reservation ID is required";
     public static final String VALIDATION_EVENT_ID_REQUIRED = "Event ID is required";

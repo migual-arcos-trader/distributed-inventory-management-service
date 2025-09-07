@@ -10,8 +10,6 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
-
 @Component
 public class EventRepositoryPortImpl implements EventRepositoryPort {
 
@@ -42,13 +40,16 @@ public class EventRepositoryPortImpl implements EventRepositoryPort {
     @Override
     public Mono<InventoryUpdateEvent> updateStatus(String eventId, String status, String errorDetails) {
         return findById(eventId)
-                .map(event -> {
-                    InventoryUpdateEvent updatedEvent = event.withStatus(
-                            EventStatus.valueOf(status)
-                    );
+                .map(existingEvent -> {
+                    EventStatus newStatus = EventStatus.valueOf(status);
+                    InventoryUpdateEvent updatedEvent;
+
                     if (errorDetails != null) {
-                        updatedEvent = updatedEvent.withError(errorDetails);
+                        updatedEvent = existingEvent.withError(errorDetails);
+                    } else {
+                        updatedEvent = existingEvent.withStatus(newStatus);
                     }
+
                     eventStore.put(eventId, updatedEvent);
                     return updatedEvent;
                 });

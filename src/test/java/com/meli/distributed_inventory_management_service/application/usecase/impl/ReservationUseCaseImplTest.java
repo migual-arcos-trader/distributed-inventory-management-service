@@ -73,29 +73,6 @@ class ReservationUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("Should confirm valid reservation")
-    void shouldConfirmValidReservation() {
-        // Arrange
-        Reservation confirmableReservation = ApplicationInventoryMother.createReservationWithStatus(STATUS_RESERVED);
-        when(reservationRepositoryPort.findById(anyString()))
-                .thenReturn(Mono.just(confirmableReservation));
-        when(reservationServicePort.confirmReservation(anyString()))
-                .thenReturn(Mono.just(inventoryItem));
-        when(reservationRepositoryPort.updateStatus(anyString(), anyString()))
-                .thenReturn(Mono.just(confirmableReservation));
-        when(reservationRepositoryPort.findById(anyString()))
-                .thenReturn(Mono.just(confirmableReservation));
-
-        // Act
-        Mono<ReservationResponseDTO> result = reservationUseCase.confirmReservation(ApplicationTestConstants.RESERVATION_ID);
-
-        // Assert
-        StepVerifier.create(result)
-                .assertNext(response -> assertEquals(STATUS_CONFIRMED, response.status()))
-                .verifyComplete();
-    }
-
-    @Test
     @DisplayName("Should return error when confirming non-confirmable reservation")
     void shouldReturnErrorWhenConfirmingNonConfirmableReservation() {
         // Arrange
@@ -113,18 +90,45 @@ class ReservationUseCaseImplTest {
     }
 
     @Test
+    @DisplayName("Should confirm valid reservation")
+    void shouldConfirmValidReservation() {
+        // Arrange
+        Reservation confirmableReservation = ApplicationInventoryMother.createReservationWithStatus(STATUS_RESERVED);
+        Reservation confirmedReservation = confirmableReservation.confirm();
+
+        when(reservationRepositoryPort.findById(anyString()))
+                .thenReturn(Mono.just(confirmableReservation));
+        when(reservationServicePort.confirmReservation(anyString()))
+                .thenReturn(Mono.just(inventoryItem));
+        when(reservationRepositoryPort.updateStatus(anyString(), anyString()))
+                .thenReturn(Mono.just(confirmedReservation));
+        when(reservationRepositoryPort.findById(anyString()))
+                .thenReturn(Mono.just(confirmedReservation));  // Este es el mock importante
+
+        // Act
+        Mono<ReservationResponseDTO> result = reservationUseCase.confirmReservation(ApplicationTestConstants.RESERVATION_ID);
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(response -> assertEquals(STATUS_CONFIRMED, response.status()))
+                .verifyComplete();
+    }
+
+    @Test
     @DisplayName("Should release reservation successfully")
     void shouldReleaseReservationSuccessfully() {
         // Arrange
         Reservation releasableReservation = ApplicationInventoryMother.createReservationWithStatus(STATUS_RESERVED);
+        Reservation releasedReservation = releasableReservation.release();
+
         when(reservationRepositoryPort.findById(anyString()))
                 .thenReturn(Mono.just(releasableReservation));
         when(reservationServicePort.releaseReservation(anyString()))
                 .thenReturn(Mono.just(inventoryItem));
         when(reservationRepositoryPort.updateStatus(anyString(), anyString()))
-                .thenReturn(Mono.just(releasableReservation));
+                .thenReturn(Mono.just(releasedReservation));
         when(reservationRepositoryPort.findById(anyString()))
-                .thenReturn(Mono.just(releasableReservation));
+                .thenReturn(Mono.just(releasedReservation));
 
         // Act
         Mono<ReservationResponseDTO> result = reservationUseCase.releaseReservation(ApplicationTestConstants.RESERVATION_ID);
@@ -167,4 +171,92 @@ class ReservationUseCaseImplTest {
                 .expectNext(false)
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("Should handle error during reservation creation")
+    void shouldHandleErrorDuringReservationCreation() {
+        // Arrange
+        when(reservationServicePort.generateReservationId())
+                .thenReturn(Mono.just(ApplicationTestConstants.RESERVATION_ID));
+        when(reservationRepositoryPort.save(any(Reservation.class)))
+                .thenReturn(Mono.error(new RuntimeException("Database error")));
+
+        // Act
+        Mono<com.meli.distributed_inventory_management_service.application.dto.inventory.ReservationResponseDTO> result =
+                reservationUseCase.createReservation(
+                        ApplicationTestConstants.PRODUCT_ID,
+                        ApplicationTestConstants.STORE_ID,
+                        ApplicationTestConstants.QUANTITY,
+                        ApplicationTestConstants.CORRELATION_ID
+                );
+
+        // Assert
+        StepVerifier.create(result)
+                .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    @DisplayName("Should handle error during stock reservation")
+    void shouldHandleErrorDuringStockReservation() {
+        // Arrange
+        Reservation reservation = ApplicationInventoryMother.createValidReservation();
+        when(reservationServicePort.generateReservationId())
+                .thenReturn(Mono.just(ApplicationTestConstants.RESERVATION_ID));
+        when(reservationRepositoryPort.save(any(Reservation.class)))
+                .thenReturn(Mono.just(reservation));
+        when(reservationServicePort.reserveStock(anyString(), anyString(), any()))
+                .thenReturn(Mono.error(new RuntimeException("Stock reservation failed")));
+
+        // Act
+        Mono<com.meli.distributed_inventory_management_service.application.dto.inventory.ReservationResponseDTO> result =
+                reservationUseCase.createReservation(
+                        ApplicationTestConstants.PRODUCT_ID,
+                        ApplicationTestConstants.STORE_ID,
+                        ApplicationTestConstants.QUANTITY,
+                        ApplicationTestConstants.CORRELATION_ID
+                );
+
+        // Assert
+        StepVerifier.create(result)
+                .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    @DisplayName("Should handle expired reservation during confirmation")
+    void shouldHandleExpiredReservationDuringConfirmation() {
+        // Arrange
+        Reservation expiredReservation = ApplicationInventoryMother.createExpiredReservation();
+        when(reservationRepositoryPort.findById(anyString()))
+                .thenReturn(Mono.just(expiredReservation));
+
+        // Act
+        Mono<com.meli.distributed_inventory_management_service.application.dto.inventory.ReservationResponseDTO> result =
+                reservationUseCase.confirmReservation(ApplicationTestConstants.RESERVATION_ID);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectError(IllegalStateException.class)
+                .verify();
+    }
+
+    @Test
+    @DisplayName("Should handle already released reservation")
+    void shouldHandleAlreadyReleasedReservation() {
+        // Arrange
+        Reservation releasedReservation = ApplicationInventoryMother.createReservationWithStatus("RELEASED");
+        when(reservationRepositoryPort.findById(anyString()))
+                .thenReturn(Mono.just(releasedReservation));
+
+        // Act
+        Mono<com.meli.distributed_inventory_management_service.application.dto.inventory.ReservationResponseDTO> result =
+                reservationUseCase.releaseReservation(ApplicationTestConstants.RESERVATION_ID);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectError(IllegalStateException.class)
+                .verify();
+    }
+
 }

@@ -1,7 +1,7 @@
 package com.meli.distributed_inventory_management_service.application.port.impl;
 
-import com.meli.distributed_inventory_management_service.application.port.ReservationServicePort;
 import com.meli.distributed_inventory_management_service.application.port.ReservationRepositoryPort;
+import com.meli.distributed_inventory_management_service.application.port.ReservationServicePort;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.service.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,7 @@ public class ReservationServicePortImpl implements ReservationServicePort {
     @Override
     public Mono<InventoryItem> releaseReservation(String reservationId) {
         return reservationRepositoryPort.findById(reservationId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Reservation not found: " + reservationId)))
                 .flatMap(reservation ->
                         inventoryService.releaseReservedStock(
                                 reservation.getProductId(),
@@ -39,6 +40,7 @@ public class ReservationServicePortImpl implements ReservationServicePort {
     @Override
     public Mono<InventoryItem> confirmReservation(String reservationId) {
         return reservationRepositoryPort.findById(reservationId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Reservation not found: " + reservationId)))
                 .flatMap(reservation ->
                         inventoryService.updateStockWithRetry(
                                 reservation.getProductId(),

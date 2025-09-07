@@ -11,5 +11,7 @@ public interface EventUseCase {
 
     Flux<EventResponseDTO> getEventsByStatus(String status);
 
+    Flux<EventResponseDTO> getEventsByCorrelationId(String correlationId);
+
     Mono<EventResponseDTO> compensateEvent(String eventId, String reason);
 }

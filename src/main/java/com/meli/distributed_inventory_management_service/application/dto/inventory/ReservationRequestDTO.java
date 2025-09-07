@@ -13,7 +13,7 @@ public record ReservationRequestDTO(
         @NotBlank(message = VALIDATION_STORE_ID_REQUIRED)
         String storeId,
 
-        @NotNull(message = "Quantity is required")
+        @NotNull(message = VALIDATION_QUANTITY_REQUIRED)
         @Positive(message = VALIDATION_QUANTITY_POSITIVE)
         Integer quantity,
 

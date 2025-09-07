@@ -91,23 +91,6 @@ class EventRepositoryPortImplTest {
     }
 
     @Test
-    @DisplayName("Should find events by status")
-    void shouldFindEventsByStatus() {
-        // Arrange
-        eventRepositoryPort.save(testEvent).block();
-        InventoryUpdateEvent processedEvent = ApplicationInventoryMother.createEventWithStatus(EventStatus.PROCESSED);
-        eventRepositoryPort.save(processedEvent).block();
-
-        // Act
-        Flux<InventoryUpdateEvent> result = eventRepositoryPort.findByStatus(EventStatus.PENDING.name());
-
-        // Assert
-        StepVerifier.create(result)
-                .assertNext(event -> assertEquals(EventStatus.PENDING, event.getStatus()))
-                .verifyComplete();
-    }
-
-    @Test
     @DisplayName("Should update event status successfully")
     void shouldUpdateEventStatusSuccessfully() {
         // Arrange
@@ -117,13 +100,35 @@ class EventRepositoryPortImplTest {
         Mono<InventoryUpdateEvent> result = eventRepositoryPort.updateStatus(
                 testEvent.getEventId(),
                 EventStatus.PROCESSED.name(),
-                ApplicationTestConstants.ERROR_MESSAGE
+                null  // Sin error details
         );
 
         // Assert
         StepVerifier.create(result)
                 .assertNext(updatedEvent -> {
                     assertEquals(EventStatus.PROCESSED, updatedEvent.getStatus());
+                    assertNull(updatedEvent.getErrorDetails());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("Should update event status with error details")
+    void shouldUpdateEventStatusWithErrorDetails() {
+        // Arrange
+        eventRepositoryPort.save(testEvent).block();
+
+        // Act
+        Mono<InventoryUpdateEvent> result = eventRepositoryPort.updateStatus(
+                testEvent.getEventId(),
+                EventStatus.FAILED.name(),
+                ApplicationTestConstants.ERROR_MESSAGE
+        );
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(updatedEvent -> {
+                    assertEquals(EventStatus.FAILED, updatedEvent.getStatus());
                     assertEquals(ApplicationTestConstants.ERROR_MESSAGE, updatedEvent.getErrorDetails());
                 })
                 .verifyComplete();

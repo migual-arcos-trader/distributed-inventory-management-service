@@ -36,6 +36,12 @@ public class EventUseCaseImpl implements EventUseCase {
     }
 
     @Override
+    public Flux<EventResponseDTO> getEventsByCorrelationId(String correlationId) {
+        return eventRepositoryPort.findByCorrelationId(correlationId)
+                .map(this::toResponseDTO);
+    }
+
+    @Override
     public Mono<EventResponseDTO> compensateEvent(String eventId, String reason) {
         return eventRepositoryPort.findById(eventId)
                 .flatMap(event -> {

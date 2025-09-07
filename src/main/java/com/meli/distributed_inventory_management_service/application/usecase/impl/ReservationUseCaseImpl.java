@@ -62,6 +62,7 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
     @Override
     public Mono<ReservationResponseDTO> releaseReservation(String reservationId) {
         return reservationRepositoryPort.findById(reservationId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Reservation not found: " + reservationId)))
                 .flatMap(reservation -> {
                     if (!reservation.canBeReleased()) {
                         return Mono.error(new IllegalStateException("Cannot release reservation: " + reservationId));
@@ -69,7 +70,8 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
 
                     return reservationServicePort.releaseReservation(reservationId)
                             .then(reservationRepositoryPort.updateStatus(reservationId, STATUS_RELEASED))
-                            .flatMap(updatedReservation -> reservationRepositoryPort.findById(reservationId))
+                            .then(reservationRepositoryPort.findById(reservationId))
+                            .switchIfEmpty(Mono.error(new IllegalStateException("Reservation not found after update: " + reservationId)))
                             .map(this::toResponseDTO);
                 });
     }
