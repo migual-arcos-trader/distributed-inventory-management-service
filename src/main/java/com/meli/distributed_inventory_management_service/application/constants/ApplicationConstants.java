@@ -53,6 +53,7 @@ public class ApplicationConstants {
     public static final String EVENT_STATUS_FAILED = EventStatus.FAILED.name();
     public static final String EVENT_STATUS_COMPENSATED = EventStatus.COMPENSATED.name();
     public static final String EVENT_STATUS_ROLLED_BACK = EventStatus.ROLLED_BACK.name();
+
     private ApplicationConstants() {
     }
 }

@@ -26,17 +26,12 @@ public class InventoryApplicationService {
     private final DeleteInventoryUseCase deleteInventoryUseCase;
     private final CheckInventoryExistsUseCase checkInventoryExistsUseCase;
 
-    // Consultas
     public Flux<InventoryItem> getAllInventory() {
         return getAllInventoryUseCase.execute();
     }
 
     public Mono<InventoryItem> getInventoryById(String id) {
         return getInventoryByIdUseCase.execute(id);
-    }
-
-    public Mono<InventoryItem> getInventoryByProductAndStore(String productId, String storeId) {
-        return getInventoryByProductAndStoreUseCase.execute(productId, storeId);
     }
 
     public Flux<InventoryItem> getInventoryByStore(String storeId) {
@@ -47,11 +42,6 @@ public class InventoryApplicationService {
         return getInventoryByProductUseCase.execute(productId);
     }
 
-    public Mono<Boolean> checkInventoryExists(String productId, String storeId) {
-        return checkInventoryExistsUseCase.execute(productId, storeId);
-    }
-
-    // Operaciones de Modificación
     public Mono<InventoryItem> createInventory(String productId, String storeId, Integer initialStock) {
         return createInventoryUseCase.execute(productId, storeId, initialStock);
     }
@@ -72,24 +62,12 @@ public class InventoryApplicationService {
         return deleteInventoryUseCase.execute(id);
     }
 
-    // Métodos con retry (usan el domain service)
     public Mono<InventoryItem> updateStockWithRetry(String productId, String storeId, Integer quantity, UpdateType updateType) {
         return domainInventoryService.updateStockWithRetry(productId, storeId, quantity, updateType);
-    }
-
-    public Mono<InventoryItem> reserveStockWithRetry(String productId, String storeId, Integer quantity) {
-        return domainInventoryService.reserveStock(productId, storeId, quantity);
-    }
-
-    public Mono<InventoryItem> releaseReservedStockWithRetry(String productId, String storeId, Integer quantity) {
-        return domainInventoryService.releaseReservedStock(productId, storeId, quantity);
     }
 
     public Mono<Integer> getAvailableStock(String productId, String storeId) {
         return domainInventoryService.getAvailableStock(productId, storeId);
     }
 
-    public Mono<InventoryItem> updateStockWithoutRetry(String productId, String storeId, Integer quantity, UpdateType updateType) {
-        return domainInventoryService.updateStockWithoutRetry(productId, storeId, quantity, updateType);
-    }
 }

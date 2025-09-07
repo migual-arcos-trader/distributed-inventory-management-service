@@ -18,6 +18,7 @@ public class ApplicationTestConstants {
     // General Test Data
     public static final String NON_EXISTENT_ID = "non-existent-id";
     public static final String ERROR_MESSAGE = "Test error message";
+
     private ApplicationTestConstants() {
     }
 }
