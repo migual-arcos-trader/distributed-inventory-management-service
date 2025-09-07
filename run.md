@@ -180,13 +180,11 @@ docker system prune -a
 ### Variables para Docker
 
 ```bash
-SPRING_PROFILES_ACTIVE=docker
-SPRING_R2DBC_URL=r2dbc:h2:mem:///inventorydb
-SPRING_R2DBC_USERNAME=sa
-SPRING_R2DBC_PASSWORD=
-JWT_SECRET=mySuperSecretKeyForJWTWithAtLeast256BitsLength
-JWT_EXPIRATION=3600000
-SERVER_PORT=8080
+    SPRING_PROFILES_ACTIVE=docker
+    SPRING_R2DBC_URL=r2dbc:h2:mem:///inventorydb
+    SPRING_R2DBC_USERNAME=sa
+    SPRING_R2DBC_PASSWORD=
+    SERVER_PORT=8080
 ```
 
 ## 📊 Comandos útiles de verificación
@@ -194,13 +192,16 @@ SERVER_PORT=8080
 ```bash
 # Verificar que la aplicación está respondiendo
 curl http://localhost:8080/actuator/health
-
+```
+```bash
 # Ver información de la aplicación
 curl http://localhost:8080/actuator/info
-
+```
+```bash
 # Ver métricas
 curl http://localhost:8080/actuator/metrics
-
+```
+```bash
 # Listar endpoints disponibles
 curl http://localhost:8080/actuator/mappings
 ```

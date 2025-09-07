@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/v1/inventory")
 @RequiredArgsConstructor
 @Tag(name = "Inventory Management", description = "APIs para gestión de inventario distribuido")
+@SecurityRequirement(name = "bearerAuth")
 public class InventoryController {
 
     private final InventoryApplicationService inventoryApplicationService;
