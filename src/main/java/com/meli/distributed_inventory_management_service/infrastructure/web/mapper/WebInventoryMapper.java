@@ -18,4 +18,5 @@ public interface WebInventoryMapper {
     @Mapping(source = "lastUpdated", target = "lastUpdated")
     @Mapping(source = "version", target = "version")
     InventoryResponseDTO toResponseDTO(InventoryItem inventoryItem);
+
 }

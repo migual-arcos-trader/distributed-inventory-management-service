@@ -34,18 +34,18 @@ public class InventoryController {
         return inventoryService.getInventoryById(id)
                 .map(webInventoryMapper::toResponseDTO)
                 .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/store/{storeId}")
-    public Flux<InventoryResponseDTO> getInventoryByStore(@PathVariable String storeId) {
-        return inventoryService.getInventoryByStore(storeId)
-                .map(webInventoryMapper::toResponseDTO);
+                .defaultIfEmpty(ResponseEntity.noContent().build());
     }
 
     @GetMapping("/product/{productId}")
     public Flux<InventoryResponseDTO> getInventoryByProduct(@PathVariable String productId) {
         return inventoryService.getInventoryByProduct(productId)
+                .map(webInventoryMapper::toResponseDTO);
+    }
+
+    @GetMapping("/store/{storeId}")
+    public Flux<InventoryResponseDTO> getInventoryByStore(@PathVariable String storeId) {
+        return inventoryService.getInventoryByStore(storeId)
                 .map(webInventoryMapper::toResponseDTO);
     }
 

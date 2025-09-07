@@ -4,6 +4,7 @@ import com.meli.distributed_inventory_management_service.domain.exception.Concur
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.model.UpdateType;
 import com.meli.distributed_inventory_management_service.domain.repository.InventoryRepository;
+import com.meli.distributed_inventory_management_service.infrastructure.persistence.mapper.MapperTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,14 +49,14 @@ class InventoryServiceTest {
 
         // Act
         Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
-                "prod-1", "store-1", 50, UpdateType.PURCHASE);
+                MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID, 50, UpdateType.PURCHASE);
 
         // Assert
         StepVerifier.create(result)
                 .expectNext(existingItem)
                 .verifyComplete();
 
-        verify(inventoryRepository).findByProductAndStore("prod-1", "store-1");
+        verify(inventoryRepository).findByProductAndStore(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
         verify(inventoryRepository).updateWithVersionCheckNative(any(), eq(1L));
     }
 
@@ -71,7 +72,7 @@ class InventoryServiceTest {
 
         // Act
         Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
-                "prod-1", "store-1", 50, UpdateType.PURCHASE);
+                MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID, 50, UpdateType.PURCHASE);
 
         // Assert
         StepVerifier.create(result)
@@ -82,7 +83,7 @@ class InventoryServiceTest {
                 })
                 .verifyComplete();
 
-        verify(inventoryRepository).findByProductAndStore("prod-1", "store-1");
+        verify(inventoryRepository).findByProductAndStore(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
         verify(inventoryRepository).save(any(InventoryItem.class));
         verify(inventoryRepository).updateWithVersionCheckNative(any(InventoryItem.class), eq(0L));
     }
@@ -98,7 +99,7 @@ class InventoryServiceTest {
 
         // Act
         Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
-                "prod-1", "store-1", 50, UpdateType.PURCHASE);
+                MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID, 50, UpdateType.PURCHASE);
 
         // Assert
         StepVerifier.create(result)
@@ -114,7 +115,7 @@ class InventoryServiceTest {
                 .thenReturn(Mono.just(existingItem));
 
         // Act
-        Mono<Integer> result = inventoryService.getAvailableStock("prod-1", "store-1");
+        Mono<Integer> result = inventoryService.getAvailableStock(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
 
         // Assert
         StepVerifier.create(result)
@@ -130,7 +131,7 @@ class InventoryServiceTest {
                 .thenReturn(Mono.empty());
 
         // Act
-        Mono<Integer> result = inventoryService.getAvailableStock("prod-1", "store-1");
+        Mono<Integer> result = inventoryService.getAvailableStock(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
 
         // Assert
         StepVerifier.create(result)
