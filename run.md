@@ -1,5 +1,26 @@
 # 🚀 Distributed Inventory Management Service - Guía de Ejecución
 
+## 🛠 Ejecución Maven + Docker
+
+### Prerrequisitos
+- Java 17
+- Maven 3.6+
+- Docker 20.10+
+- Docker Compose 2.0+
+
+```bash
+# Construir el JAR ejecutable
+mvn clean package
+```
+```bash
+# Construir y ejecutar con Docker Compose
+docker-compose up --build
+```
+```bash
+# Limpiar completamente (containers, volúmenes, imágenes)
+docker-compose down -v --rmi all
+```
+
 ## 🛠 Ejecución local con Maven (Desarrollo)
 
 ### Prerrequisitos
@@ -59,27 +80,6 @@ docker-compose logs -f
 docker-compose down
 ```
 
-```bash
-# Limpiar completamente (containers, volúmenes, imágenes)
-docker-compose down -v --rmi all
-```
-
-## 🛠 Ejecución Maven + Docker
-
-### Prerrequisitos
-- Java 17
-- Maven 3.6+
-- Docker 20.10+
-- Docker Compose 2.0+
-
-```bash
-# Construir el JAR ejecutable
-mvn clean package
-```
-```bash
-# Construir y ejecutar con Docker Compose
-docker-compose up --build
-```
 ```bash
 # Limpiar completamente (containers, volúmenes, imágenes)
 docker-compose down -v --rmi all
