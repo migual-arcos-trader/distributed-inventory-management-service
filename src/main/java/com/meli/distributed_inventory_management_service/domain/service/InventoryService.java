@@ -38,14 +38,14 @@ public class InventoryService {
         return inventoryRepository.findByProductAndStore(productId, storeId)
                 .switchIfEmpty(Mono.defer(() -> createNewInventoryItem(productId, storeId)))
                 .flatMap(existingItem -> existingItem.updateStock(quantity, updateType)
-                        .flatMap(updatedItem -> inventoryRepository.updateWithVersionCheck(updatedItem, existingItem.getVersion())
-                                .onErrorMap(OptimisticLockingFailureException.class, ex ->
-                                        new ConcurrentUpdateException(
-                                                productId, storeId,
-                                                existingItem.getVersion(),
-                                                updatedItem.getVersion()
-                                        )
-                                )));
+                        .flatMap(updatedItem -> inventoryRepository.updateWithVersionCheckNative(updatedItem, existingItem.getVersion()))
+                        .onErrorMap(OptimisticLockingFailureException.class, ex ->
+                                new ConcurrentUpdateException(
+                                        productId, storeId,
+                                        existingItem.getVersion(),
+                                        null
+                                )
+                        ));
     }
 
     @Retryable(

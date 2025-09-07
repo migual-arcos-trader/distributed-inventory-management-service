@@ -69,30 +69,11 @@ public class SpringDataInventoryRepository implements InventoryRepository {
     }
 
     @Override
-    @Transactional
-    public Mono<InventoryItem> updateWithVersionCheck(InventoryItem item, Long expectedVersion) {
-        return Mono.defer(() -> {
-            InventoryEntity entity = persistenceInventoryMapper.toEntity(item);
-
-            return jpaRepository.findById(item.getId())
-                    .flatMap(existingEntity -> {
-                        if (!existingEntity.getVersion().equals(expectedVersion)) {
-                            return Mono.error(new OptimisticLockingFailureException(
-                                    "Version mismatch. Expected: " + expectedVersion +
-                                            ", Actual: " + existingEntity.getVersion()
-                            ));
-                        }
-                        return jpaRepository.save(entity);
-                    })
-                    .map(persistenceInventoryMapper::toDomain);
-        });
-    }
-
-    @Override
     public Mono<Boolean> existsByProductAndStore(String productId, String storeId) {
         return jpaRepository.existsByProductIdAndStoreId(productId, storeId);
     }
 
+    @Override
     @Transactional
     public Mono<InventoryItem> updateWithVersionCheckNative(InventoryItem item, Long expectedVersion) {
         String updateSql = """
@@ -102,9 +83,10 @@ public class SpringDataInventoryRepository implements InventoryRepository {
                      minimum_stock_level = :minimumStockLevel,
                      maximum_stock_level = :maximumStockLevel,
                      last_updated = :lastUpdated,
-                     version = version + 1
+                     version = version + 1,
+                     updated_at = CURRENT_TIMESTAMP
                  WHERE id = :id AND version = :expectedVersion
-                \s""";
+               \s""";
 
         return databaseClient.sql(updateSql)
                 .bind("currentStock", item.getCurrentStock())

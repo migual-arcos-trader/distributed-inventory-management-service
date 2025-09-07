@@ -164,33 +164,6 @@ class SpringDataInventoryRepositoryIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should throw OptimisticLockingFailureException when version mismatch")
-    void shouldThrowExceptionWhenVersionMismatch() {
-        // Arrange
-        InventoryItem updatedItem = InventoryItem.builder()
-                .id(testEntity.getId())
-                .productId(testEntity.getProductId())
-                .storeId(testEntity.getStoreId())
-                .currentStock(IntegrationTestsConstants.UPDATED_STOCK)
-                .reservedStock(testEntity.getReservedStock())
-                .minimumStockLevel(testEntity.getMinimumStockLevel())
-                .maximumStockLevel(testEntity.getMaximumStockLevel())
-                .lastUpdated(testEntity.getLastUpdated())
-                .version(testEntity.getVersion() + IntegrationTestsConstants.INITIAL_VERSION)
-                .build();
-
-        Long wrongExpectedVersion = testEntity.getVersion() + IntegrationTestsConstants.WRONG_VERSION_OFFSET;
-
-        // Act
-        Mono<InventoryItem> result = repository.updateWithVersionCheck(updatedItem, wrongExpectedVersion);
-
-        // Assert
-        StepVerifier.create(result)
-                .expectError(OptimisticLockingFailureException.class)
-                .verify();
-    }
-
-    @Test
     @DisplayName("Should find items by store ID successfully")
     void shouldFindByStoreIdSuccessfully() {
         // Arrange

@@ -1,20 +1,18 @@
 package com.meli.distributed_inventory_management_service.infrastructure.config.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.web.server.WebFilter;
+import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.List;
+import java.time.Instant;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -27,9 +25,6 @@ public class SecurityConfig {
             "/actuator/health",
             "/webjars/**"
     };
-    public static final String ROLE_USER = "ROLE_USER";
-    public static final String BEARER = "Bearer ";
-    public static final int BEGIN_INDEX = 7;
 
     private final JwtUtil jwtUtil;
 
@@ -38,16 +33,49 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain() {
-        return securityWebFilterChain(ServerHttpSecurity.http());
+    public ReactiveJwtDecoder reactiveJwtDecoder() {
+        return token -> {
+            try {
+                Claims claims = Jwts.parserBuilder()
+                        .setSigningKey(jwtUtil.getSigningKey())
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
+
+                Instant issuedAt = Instant.ofEpochSecond(claims.get("iat", Integer.class));
+                Instant expiresAt = Instant.ofEpochSecond(claims.get("exp", Integer.class));
+
+                Jwt jwt = Jwt.withTokenValue(token)
+                        .subject(claims.getSubject())
+                        .header("alg", "HS256")
+                        .issuedAt(issuedAt)
+                        .expiresAt(expiresAt)
+                        .claims(c -> {
+                            claims.forEach((key, value) -> {
+                                if (!"iat".equals(key) && !"exp".equals(key)) {
+                                    c.put(key, value);
+                                }
+                            });
+                        })
+                        .build();
+
+                return Mono.just(jwt);
+            } catch (Exception e) {
+                return Mono.error(new RuntimeException("Token validation failed: " + e.getMessage(), e));
+            }
+        };
     }
 
-    protected SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(PUBLIC_PATHS).permitAll()
                         .anyExchange().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter()))
                 )
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
@@ -55,40 +83,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebFilter jwtAuthenticationFilter() {
-        return (exchange, chain) -> {
-            String path = exchange.getRequest().getPath().value();
-            if (Arrays.stream(PUBLIC_PATHS).anyMatch(publicPath ->
-                    path.startsWith(publicPath.replace("/**", "")) ||
-                            path.equals(publicPath.replace("/**", "")) ||
-                            path.startsWith(publicPath)
-            )) {
-                return chain.filter(exchange);
-            }
-
-            String authHeader = exchange.getRequest()
-                    .getHeaders()
-                    .getFirst(HttpHeaders.AUTHORIZATION);
-
-            if (authHeader != null && authHeader.startsWith(BEARER)) {
-                String token = authHeader.substring(BEGIN_INDEX);
-                if (jwtUtil.validateToken(token)) {
-                    String username = jwtUtil.getUsernameFromToken(token);
-
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    username,
-                                    null,
-                                    List.of(new SimpleGrantedAuthority(ROLE_USER))
-                            );
-
-                    return chain.filter(exchange)
-                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
-                }
-            }
-
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        };
+    public JwtAuthConverter jwtAuthConverter() {
+        return new JwtAuthConverter();
     }
 }

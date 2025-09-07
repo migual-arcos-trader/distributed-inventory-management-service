@@ -43,7 +43,7 @@ class InventoryServiceTest {
         // Arrange
         when(inventoryRepository.findByProductAndStore(any(), any()))
                 .thenReturn(Mono.just(existingItem));
-        when(inventoryRepository.updateWithVersionCheck(any(), any()))
+        when(inventoryRepository.updateWithVersionCheckNative(any(), any()))
                 .thenReturn(Mono.just(existingItem));
 
         // Act
@@ -56,7 +56,7 @@ class InventoryServiceTest {
                 .verifyComplete();
 
         verify(inventoryRepository).findByProductAndStore("prod-1", "store-1");
-        verify(inventoryRepository).updateWithVersionCheck(any(), eq(1L));
+        verify(inventoryRepository).updateWithVersionCheckNative(any(), eq(1L));
     }
 
     @Test
@@ -67,7 +67,7 @@ class InventoryServiceTest {
         InventoryItem updatedNewItem = updatedNewItem();
         when(inventoryRepository.findByProductAndStore(any(), any())).thenReturn(Mono.empty());
         when(inventoryRepository.save(any(InventoryItem.class))).thenReturn(Mono.just(newItem));
-        when(inventoryRepository.updateWithVersionCheck(any(InventoryItem.class), eq(0L))).thenReturn(Mono.just(updatedNewItem));
+        when(inventoryRepository.updateWithVersionCheckNative(any(InventoryItem.class), eq(0L))).thenReturn(Mono.just(updatedNewItem));
 
         // Act
         Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
@@ -84,7 +84,7 @@ class InventoryServiceTest {
 
         verify(inventoryRepository).findByProductAndStore("prod-1", "store-1");
         verify(inventoryRepository).save(any(InventoryItem.class));
-        verify(inventoryRepository).updateWithVersionCheck(any(InventoryItem.class), eq(0L));
+        verify(inventoryRepository).updateWithVersionCheckNative(any(InventoryItem.class), eq(0L));
     }
 
     @Test
@@ -93,7 +93,7 @@ class InventoryServiceTest {
         // Arrange
         when(inventoryRepository.findByProductAndStore(any(), any()))
                 .thenReturn(Mono.just(existingItem));
-        when(inventoryRepository.updateWithVersionCheck(any(), any()))
+        when(inventoryRepository.updateWithVersionCheckNative(any(), any()))
                 .thenReturn(Mono.error(new OptimisticLockingFailureException("Concurrent update")));
 
         // Act

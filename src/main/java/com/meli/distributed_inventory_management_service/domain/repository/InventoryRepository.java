@@ -20,8 +20,8 @@ public interface InventoryRepository {
 
     Mono<Boolean> delete(String id);
 
-    Mono<InventoryItem> updateWithVersionCheck(InventoryItem item, Long expectedVersion);
-
     Mono<Boolean> existsByProductAndStore(String productId, String storeId);
+
+    Mono<InventoryItem> updateWithVersionCheckNative(InventoryItem item, Long expectedVersion);
 
 }

@@ -18,6 +18,7 @@ public class JwtUtil {
 
     private static final int DEFAULT_BYTES = 32;
     private static final int DEFAULT_POS = 0;
+    private static final String ROLES = "roles";
 
     @Value("${jwt.secret:mySecretKeyForJWTGenerationWithAtLeast256Bits}")
     private String secret;
@@ -26,7 +27,7 @@ public class JwtUtil {
     @Value("${jwt.expiration:3600000}")
     private Long expiration;
 
-    private SecretKey getSigningKey() {
+    SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes();
         if (keyBytes.length < DEFAULT_BYTES) {
             byte[] paddedKey = new byte[DEFAULT_BYTES];
@@ -39,7 +40,7 @@ public class JwtUtil {
     public String generateToken(String username, List<String> roles) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", roles)
+                .claim(ROLES, roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
