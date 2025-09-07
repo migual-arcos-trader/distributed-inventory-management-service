@@ -2,7 +2,7 @@ package com.meli.distributed_inventory_management_service.application.usecase.im
 
 import com.meli.distributed_inventory_management_service.application.usecase.ReleaseReservationUseCase;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
-import com.meli.distributed_inventory_management_service.domain.service.InventoryService;
+import com.meli.distributed_inventory_management_service.domain.service.InventoryDomainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -11,10 +11,10 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ReleaseReservationUseCaseImpl implements ReleaseReservationUseCase {
 
-    private final InventoryService inventoryService;
+    private final InventoryDomainService inventoryDomainService;
 
     @Override
     public Mono<InventoryItem> execute(String productId, String storeId, Integer quantity) {
-        return inventoryService.releaseReservedStock(productId, storeId, quantity);
+        return inventoryDomainService.releaseReservedStock(productId, storeId, quantity);
     }
 }

@@ -4,7 +4,7 @@ import com.meli.distributed_inventory_management_service.application.constants.A
 import com.meli.distributed_inventory_management_service.application.mother.ApplicationInventoryMother;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.model.Reservation;
-import com.meli.distributed_inventory_management_service.domain.service.InventoryService;
+import com.meli.distributed_inventory_management_service.domain.service.InventoryDomainService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class ReservationServicePortImplTest {
 
     @Mock
-    private InventoryService inventoryService;
+    private InventoryDomainService inventoryDomainService;
 
     @Mock
     private com.meli.distributed_inventory_management_service.application.port.ReservationRepositoryPort reservationRepositoryPort;
@@ -60,7 +60,7 @@ class ReservationServicePortImplTest {
     @DisplayName("Should reserve stock successfully")
     void shouldReserveStockSuccessfully() {
         // Arrange
-        when(inventoryService.reserveStock(anyString(), anyString(), anyInt()))
+        when(inventoryDomainService.reserveStock(anyString(), anyString(), anyInt()))
                 .thenReturn(Mono.just(inventoryItem));
 
         // Act
@@ -79,7 +79,7 @@ class ReservationServicePortImplTest {
         // Arrange
         when(reservationRepositoryPort.findById(anyString()))
                 .thenReturn(Mono.just(validReservation));
-        when(inventoryService.releaseReservedStock(anyString(), anyString(), anyInt()))
+        when(inventoryDomainService.releaseReservedStock(anyString(), anyString(), anyInt()))
                 .thenReturn(Mono.just(inventoryItem));
 
         // Act

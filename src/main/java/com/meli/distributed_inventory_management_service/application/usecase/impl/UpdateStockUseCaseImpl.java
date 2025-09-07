@@ -3,7 +3,7 @@ package com.meli.distributed_inventory_management_service.application.usecase.im
 import com.meli.distributed_inventory_management_service.application.usecase.UpdateStockUseCase;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.model.UpdateType;
-import com.meli.distributed_inventory_management_service.domain.service.InventoryService;
+import com.meli.distributed_inventory_management_service.domain.service.InventoryDomainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class UpdateStockUseCaseImpl implements UpdateStockUseCase {
 
-    private final InventoryService inventoryService;
+    private final InventoryDomainService inventoryDomainService;
 
     @Override
     public Mono<InventoryItem> execute(String productId, String storeId, Integer quantity, String updateType) {
@@ -23,6 +23,6 @@ public class UpdateStockUseCaseImpl implements UpdateStockUseCase {
             return Mono.error(new IllegalArgumentException("Invalid update type: " + updateType));
         }
 
-        return inventoryService.updateStockWithRetry(productId, storeId, quantity, type);
+        return inventoryDomainService.updateStockWithRetry(productId, storeId, quantity, type);
     }
 }

@@ -23,13 +23,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class InventoryServiceTest {
+class InventoryDomainServiceTest {
 
     @Mock
     private InventoryRepository inventoryRepository;
 
     @InjectMocks
-    private InventoryService inventoryService;
+    private InventoryDomainService inventoryDomainService;
 
     private InventoryItem existingItem;
 
@@ -48,7 +48,7 @@ class InventoryServiceTest {
                 .thenReturn(Mono.just(existingItem));
 
         // Act
-        Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
+        Mono<InventoryItem> result = inventoryDomainService.updateStockWithRetry(
                 MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID, 50, UpdateType.PURCHASE);
 
         // Assert
@@ -71,7 +71,7 @@ class InventoryServiceTest {
         when(inventoryRepository.updateWithVersionCheckNative(any(InventoryItem.class), eq(0L))).thenReturn(Mono.just(updatedNewItem));
 
         // Act
-        Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
+        Mono<InventoryItem> result = inventoryDomainService.updateStockWithRetry(
                 MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID, 50, UpdateType.PURCHASE);
 
         // Assert
@@ -98,7 +98,7 @@ class InventoryServiceTest {
                 .thenReturn(Mono.error(new OptimisticLockingFailureException("Concurrent update")));
 
         // Act
-        Mono<InventoryItem> result = inventoryService.updateStockWithRetry(
+        Mono<InventoryItem> result = inventoryDomainService.updateStockWithRetry(
                 MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID, 50, UpdateType.PURCHASE);
 
         // Assert
@@ -115,7 +115,7 @@ class InventoryServiceTest {
                 .thenReturn(Mono.just(existingItem));
 
         // Act
-        Mono<Integer> result = inventoryService.getAvailableStock(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
+        Mono<Integer> result = inventoryDomainService.getAvailableStock(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
 
         // Assert
         StepVerifier.create(result)
@@ -131,7 +131,7 @@ class InventoryServiceTest {
                 .thenReturn(Mono.empty());
 
         // Act
-        Mono<Integer> result = inventoryService.getAvailableStock(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
+        Mono<Integer> result = inventoryDomainService.getAvailableStock(MapperTestConstants.PRODUCT_ID, MapperTestConstants.STORE_ID);
 
         // Assert
         StepVerifier.create(result)

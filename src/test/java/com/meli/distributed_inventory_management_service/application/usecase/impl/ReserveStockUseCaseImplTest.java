@@ -2,6 +2,7 @@ package com.meli.distributed_inventory_management_service.application.usecase.im
 
 import com.meli.distributed_inventory_management_service.application.constants.ApplicationTestConstants;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
+import com.meli.distributed_inventory_management_service.domain.service.InventoryDomainService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.when;
 class ReserveStockUseCaseImplTest {
 
     @Mock
-    private com.meli.distributed_inventory_management_service.domain.service.InventoryService inventoryService;
+    private InventoryDomainService inventoryDomainService;
 
     @InjectMocks
     private ReserveStockUseCaseImpl reserveStockUseCase;
@@ -36,7 +37,7 @@ class ReserveStockUseCaseImplTest {
     @DisplayName("Should reserve stock successfully")
     void shouldReserveStockSuccessfully() {
         // Arrange
-        when(inventoryService.reserveStock(anyString(), anyString(), any()))
+        when(inventoryDomainService.reserveStock(anyString(), anyString(), any()))
                 .thenReturn(Mono.just(inventoryItem));
 
         // Act

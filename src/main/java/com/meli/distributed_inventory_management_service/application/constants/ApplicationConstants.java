@@ -11,9 +11,9 @@ public class ApplicationConstants {
     public static final int DEFAULT_MAXIMUM_STOCK = 500;
     public static final int DEFAULT_RESERVED_STOCK = 0;
     // Retry Configuration
-    public static final int MAX_RETRY_ATTEMPTS = 5;
-    public static final int RETRY_INITIAL_DELAY_MS = 100;
-    public static final int RETRY_MAX_DELAY_MS = 1000;
+    public static final int RETRY_DELAY = 100;
+    public static final int RETRY_MAX_ATTEMPTS = 5;
+    public static final int RETRY_MAX_DELAY = 1000;
     public static final int RETRY_MULTIPLIER = 2;
     // Versioning
     public static final long INITIAL_VERSION = 0L;

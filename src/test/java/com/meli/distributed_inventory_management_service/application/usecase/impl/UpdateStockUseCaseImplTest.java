@@ -2,7 +2,7 @@ package com.meli.distributed_inventory_management_service.application.usecase.im
 
 import com.meli.distributed_inventory_management_service.application.constants.ApplicationTestConstants;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
-import com.meli.distributed_inventory_management_service.domain.service.InventoryService;
+import com.meli.distributed_inventory_management_service.domain.service.InventoryDomainService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 class UpdateStockUseCaseImplTest {
 
     @Mock
-    private InventoryService inventoryService;
+    private InventoryDomainService inventoryDomainService;
 
     @InjectMocks
     private UpdateStockUseCaseImpl updateStockUseCase;
@@ -37,7 +37,7 @@ class UpdateStockUseCaseImplTest {
     @DisplayName("Should update stock successfully for purchase")
     void shouldUpdateStockSuccessfully() {
         // Arrange
-        when(inventoryService.updateStockWithRetry(anyString(), anyString(), any(), any()))
+        when(inventoryDomainService.updateStockWithRetry(anyString(), anyString(), any(), any()))
                 .thenReturn(Mono.just(inventoryItem));
 
         // Act

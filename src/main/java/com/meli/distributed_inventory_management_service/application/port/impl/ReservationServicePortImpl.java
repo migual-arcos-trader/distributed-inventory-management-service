@@ -3,7 +3,7 @@ package com.meli.distributed_inventory_management_service.application.port.impl;
 import com.meli.distributed_inventory_management_service.application.port.ReservationRepositoryPort;
 import com.meli.distributed_inventory_management_service.application.port.ReservationServicePort;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
-import com.meli.distributed_inventory_management_service.domain.service.InventoryService;
+import com.meli.distributed_inventory_management_service.domain.service.InventoryDomainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -17,12 +17,12 @@ import static com.meli.distributed_inventory_management_service.application.cons
 @RequiredArgsConstructor
 public class ReservationServicePortImpl implements ReservationServicePort {
 
-    private final InventoryService inventoryService;
+    private final InventoryDomainService inventoryDomainService;
     private final ReservationRepositoryPort reservationRepositoryPort;
 
     @Override
     public Mono<InventoryItem> reserveStock(String productId, String storeId, Integer quantity) {
-        return inventoryService.reserveStock(productId, storeId, quantity);
+        return inventoryDomainService.reserveStock(productId, storeId, quantity);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ReservationServicePortImpl implements ReservationServicePort {
         return reservationRepositoryPort.findById(reservationId)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Reservation not found: " + reservationId)))
                 .flatMap(reservation ->
-                        inventoryService.releaseReservedStock(
+                        inventoryDomainService.releaseReservedStock(
                                 reservation.getProductId(),
                                 reservation.getStoreId(),
                                 reservation.getQuantity()
@@ -43,7 +43,7 @@ public class ReservationServicePortImpl implements ReservationServicePort {
         return reservationRepositoryPort.findById(reservationId)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Reservation not found: " + reservationId)))
                 .flatMap(reservation ->
-                        inventoryService.updateStockWithRetry(
+                        inventoryDomainService.updateStockWithRetry(
                                 reservation.getProductId(),
                                 reservation.getStoreId(),
                                 reservation.getQuantity(),
