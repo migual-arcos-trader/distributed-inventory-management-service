@@ -1,8 +1,8 @@
 package com.meli.distributed_inventory_management_service.application.port.impl;
 
 import com.meli.distributed_inventory_management_service.application.port.EventRepositoryPort;
-import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
 import com.meli.distributed_inventory_management_service.domain.model.EventStatus;
+import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -58,6 +58,6 @@ public class EventRepositoryPortImpl implements EventRepositoryPort {
     @Override
     public Flux<InventoryUpdateEvent> findByCorrelationId(String correlationId) {
         return Flux.fromIterable(eventStore.values())
-                .filter(event -> correlationId.equals(event.getCorrelationId()));
+                .filter(event -> correlationId != null && correlationId.equals(event.getCorrelationId()));
     }
 }

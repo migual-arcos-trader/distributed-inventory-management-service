@@ -6,9 +6,14 @@ import reactor.core.publisher.Mono;
 
 public interface ReservationUseCase {
     Mono<ReservationResponseDTO> createReservation(String productId, String storeId, Integer quantity, String correlationId);
+
     Mono<ReservationResponseDTO> confirmReservation(String reservationId);
+
     Mono<ReservationResponseDTO> releaseReservation(String reservationId);
+
     Mono<ReservationResponseDTO> getReservation(String reservationId);
+
     Flux<ReservationResponseDTO> getAllReservations();
+
     Mono<Boolean> validateReservation(String reservationId);
 }

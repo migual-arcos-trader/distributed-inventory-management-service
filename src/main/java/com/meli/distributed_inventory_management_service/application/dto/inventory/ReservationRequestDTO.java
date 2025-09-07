@@ -19,4 +19,5 @@ public record ReservationRequestDTO(
 
         String reservationId,
         String correlationId
-) {}
+) {
+}

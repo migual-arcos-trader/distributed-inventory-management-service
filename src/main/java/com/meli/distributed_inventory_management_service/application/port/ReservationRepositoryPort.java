@@ -6,11 +6,18 @@ import reactor.core.publisher.Mono;
 
 public interface ReservationRepositoryPort {
     Mono<Reservation> save(Reservation reservation);
+
     Mono<Reservation> findById(String reservationId);
+
     Flux<Reservation> findAll();
+
     Flux<Reservation> findByStatus(String status);
+
     Flux<Reservation> findByProductAndStore(String productId, String storeId);
+
     Mono<Reservation> updateStatus(String reservationId, String status);
+
     Flux<Reservation> findExpiredReservations();
+
     Mono<Boolean> existsById(String reservationId);
 }

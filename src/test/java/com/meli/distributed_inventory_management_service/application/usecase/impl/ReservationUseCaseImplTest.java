@@ -1,8 +1,8 @@
 package com.meli.distributed_inventory_management_service.application.usecase.impl;
 
 import com.meli.distributed_inventory_management_service.application.constants.ApplicationTestConstants;
-import com.meli.distributed_inventory_management_service.application.mother.ApplicationInventoryMother;
 import com.meli.distributed_inventory_management_service.application.dto.inventory.ReservationResponseDTO;
+import com.meli.distributed_inventory_management_service.application.mother.ApplicationInventoryMother;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryItem;
 import com.meli.distributed_inventory_management_service.domain.model.Reservation;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,13 +97,14 @@ class ReservationUseCaseImplTest {
         Reservation confirmedReservation = confirmableReservation.confirm();
 
         when(reservationRepositoryPort.findById(anyString()))
-                .thenReturn(Mono.just(confirmableReservation));
+                .thenReturn(Mono.just(confirmableReservation))
+                .thenReturn(Mono.just(confirmedReservation));
+
         when(reservationServicePort.confirmReservation(anyString()))
                 .thenReturn(Mono.just(inventoryItem));
+
         when(reservationRepositoryPort.updateStatus(anyString(), anyString()))
                 .thenReturn(Mono.just(confirmedReservation));
-        when(reservationRepositoryPort.findById(anyString()))
-                .thenReturn(Mono.just(confirmedReservation));  // Este es el mock importante
 
         // Act
         Mono<ReservationResponseDTO> result = reservationUseCase.confirmReservation(ApplicationTestConstants.RESERVATION_ID);
@@ -122,12 +123,13 @@ class ReservationUseCaseImplTest {
         Reservation releasedReservation = releasableReservation.release();
 
         when(reservationRepositoryPort.findById(anyString()))
-                .thenReturn(Mono.just(releasableReservation));
+                .thenReturn(Mono.just(releasableReservation))
+                .thenReturn(Mono.just(releasedReservation));
+
         when(reservationServicePort.releaseReservation(anyString()))
                 .thenReturn(Mono.just(inventoryItem));
+
         when(reservationRepositoryPort.updateStatus(anyString(), anyString()))
-                .thenReturn(Mono.just(releasedReservation));
-        when(reservationRepositoryPort.findById(anyString()))
                 .thenReturn(Mono.just(releasedReservation));
 
         // Act

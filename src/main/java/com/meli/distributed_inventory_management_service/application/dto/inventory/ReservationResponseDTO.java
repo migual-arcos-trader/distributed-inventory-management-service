@@ -11,4 +11,5 @@ public record ReservationResponseDTO(
         LocalDateTime reservedAt,
         LocalDateTime expiresAt,
         String correlationId
-) {}
+) {
+}

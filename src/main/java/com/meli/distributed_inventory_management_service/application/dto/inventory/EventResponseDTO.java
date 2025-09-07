@@ -16,4 +16,5 @@ public record EventResponseDTO(
         LocalDateTime timestamp,
         EventStatus status,
         String errorDetails
-) {}
+) {
+}

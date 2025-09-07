@@ -23,12 +23,18 @@ public class Reservation {
         return LocalDateTime.now().isAfter(expiresAt);
     }
 
-    public boolean canBeConfirmed() {
-        return STATUS_RESERVED.equals(status) && !isExpired();
+    public boolean canBeReleased() {
+        System.out.println("Current status: '" + status + "'");
+        System.out.println("STATUS_RESERVED: '" + STATUS_RESERVED + "'");
+        System.out.println("STATUS_PENDING: '" + STATUS_PENDING + "'");
+
+        boolean result = STATUS_RESERVED.equals(status) || STATUS_PENDING.equals(status);
+        System.out.println("Result: " + result);
+        return result;
     }
 
-    public boolean canBeReleased() {
-        return STATUS_RESERVED.equals(status) || STATUS_PENDING.equals(status);
+    public boolean canBeConfirmed() {
+        return STATUS_RESERVED.equals(status) && !isExpired();
     }
 
     public Reservation confirm() {
@@ -69,4 +75,5 @@ public class Reservation {
                 .correlationId(this.correlationId)
                 .build();
     }
+
 }

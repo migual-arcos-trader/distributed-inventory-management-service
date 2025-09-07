@@ -1,9 +1,9 @@
 package com.meli.distributed_inventory_management_service.application.dto.inventory;
 
+import com.meli.distributed_inventory_management_service.domain.model.UpdateType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import com.meli.distributed_inventory_management_service.domain.model.UpdateType;
 
 import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
 
@@ -22,4 +22,5 @@ public record StockUpdateRequestDTO(
         UpdateType updateType,
 
         String correlationId
-) {}
+) {
+}

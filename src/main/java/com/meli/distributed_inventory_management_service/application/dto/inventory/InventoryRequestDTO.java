@@ -26,4 +26,5 @@ public record InventoryRequestDTO(
 
         @PositiveOrZero(message = "Maximum stock level" + VALIDATION_STOCK_POSITIVE)
         Integer maximumStockLevel
-) {}
+) {
+}

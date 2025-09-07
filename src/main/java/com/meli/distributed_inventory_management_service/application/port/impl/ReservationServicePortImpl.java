@@ -10,7 +10,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
+import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.RESERVATION_PREFIX;
+import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.STATUS_RESERVED;
 
 @Component
 @RequiredArgsConstructor

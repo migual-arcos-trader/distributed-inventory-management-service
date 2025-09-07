@@ -1,9 +1,9 @@
 package com.meli.distributed_inventory_management_service.application.mother;
 
 import com.meli.distributed_inventory_management_service.application.constants.ApplicationTestConstants;
-import com.meli.distributed_inventory_management_service.domain.model.Reservation;
-import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
 import com.meli.distributed_inventory_management_service.domain.model.EventStatus;
+import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
+import com.meli.distributed_inventory_management_service.domain.model.Reservation;
 import com.meli.distributed_inventory_management_service.domain.model.UpdateType;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,8 @@ import static com.meli.distributed_inventory_management_service.application.cons
 
 public class ApplicationInventoryMother {
 
-    private ApplicationInventoryMother() {}
+    private ApplicationInventoryMother() {
+    }
 
     // Reservation Object Mother
     public static Reservation.ReservationBuilder basicReservation() {

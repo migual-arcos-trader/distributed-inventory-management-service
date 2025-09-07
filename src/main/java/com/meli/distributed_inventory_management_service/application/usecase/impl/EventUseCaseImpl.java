@@ -1,15 +1,13 @@
 package com.meli.distributed_inventory_management_service.application.usecase.impl;
 
 import com.meli.distributed_inventory_management_service.application.dto.inventory.EventResponseDTO;
-import com.meli.distributed_inventory_management_service.application.usecase.EventUseCase;
 import com.meli.distributed_inventory_management_service.application.port.EventRepositoryPort;
+import com.meli.distributed_inventory_management_service.application.usecase.EventUseCase;
 import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
 
 @Component
 @RequiredArgsConstructor
@@ -49,7 +47,7 @@ public class EventUseCaseImpl implements EventUseCase {
                         return Mono.error(new IllegalStateException("Event cannot be compensated: " + eventId));
                     }
 
-                    return eventRepositoryPort.updateStatus(eventId, STATUS_COMPENSATED, reason)
+                    return eventRepositoryPort.updateStatus(eventId, "COMPENSATED", reason)
                             .map(this::toResponseDTO);
                 });
     }

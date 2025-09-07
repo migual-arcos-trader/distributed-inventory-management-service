@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
+import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.RESERVATION_PREFIX;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;

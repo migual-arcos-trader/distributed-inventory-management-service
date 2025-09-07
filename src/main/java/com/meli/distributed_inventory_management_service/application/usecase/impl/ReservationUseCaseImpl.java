@@ -1,9 +1,9 @@
 package com.meli.distributed_inventory_management_service.application.usecase.impl;
 
 import com.meli.distributed_inventory_management_service.application.dto.inventory.ReservationResponseDTO;
-import com.meli.distributed_inventory_management_service.application.usecase.ReservationUseCase;
 import com.meli.distributed_inventory_management_service.application.port.ReservationRepositoryPort;
 import com.meli.distributed_inventory_management_service.application.port.ReservationServicePort;
+import com.meli.distributed_inventory_management_service.application.usecase.ReservationUseCase;
 import com.meli.distributed_inventory_management_service.domain.model.Reservation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -64,6 +64,10 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
         return reservationRepositoryPort.findById(reservationId)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Reservation not found: " + reservationId)))
                 .flatMap(reservation -> {
+                    // DEBUG: Verificar el estado de la reserva
+                    System.out.println("Reservation status: " + reservation.getStatus());
+                    System.out.println("Can be released: " + reservation.canBeReleased());
+
                     if (!reservation.canBeReleased()) {
                         return Mono.error(new IllegalStateException("Cannot release reservation: " + reservationId));
                     }

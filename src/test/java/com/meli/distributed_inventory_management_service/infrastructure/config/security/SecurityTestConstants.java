@@ -37,6 +37,7 @@ public final class SecurityTestConstants {
     public static final int HTTP_OK = 200;
     public static final int HTTP_UNAUTHORIZED = 401;
     public static final int HTTP_FORBIDDEN = 403;
+
     private SecurityTestConstants() {
         // Utility class
     }

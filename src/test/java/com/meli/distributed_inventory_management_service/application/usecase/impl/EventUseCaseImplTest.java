@@ -1,10 +1,10 @@
 package com.meli.distributed_inventory_management_service.application.usecase.impl;
 
 import com.meli.distributed_inventory_management_service.application.constants.ApplicationTestConstants;
-import com.meli.distributed_inventory_management_service.application.mother.ApplicationInventoryMother;
 import com.meli.distributed_inventory_management_service.application.dto.inventory.EventResponseDTO;
-import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
+import com.meli.distributed_inventory_management_service.application.mother.ApplicationInventoryMother;
 import com.meli.distributed_inventory_management_service.domain.model.EventStatus;
+import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

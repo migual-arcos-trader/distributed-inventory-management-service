@@ -1,15 +1,11 @@
 package com.meli.distributed_inventory_management_service.application.service;
 
 import com.meli.distributed_inventory_management_service.application.dto.inventory.EventResponseDTO;
-import com.meli.distributed_inventory_management_service.application.port.EventRepositoryPort;
 import com.meli.distributed_inventory_management_service.application.usecase.EventUseCase;
-import com.meli.distributed_inventory_management_service.domain.model.InventoryUpdateEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +26,7 @@ public class EventApplicationService {
     }
 
     public Flux<EventResponseDTO> getEventsByCorrelationId(String correlationId) {
-        // Necesitaríamos agregar este método al EventUseCase
-        return Flux.error(new UnsupportedOperationException("Not implemented yet"));
+        return eventUseCase.getEventsByCorrelationId(correlationId);
     }
 
     public Mono<EventResponseDTO> compensateEvent(String eventId, String reason) {

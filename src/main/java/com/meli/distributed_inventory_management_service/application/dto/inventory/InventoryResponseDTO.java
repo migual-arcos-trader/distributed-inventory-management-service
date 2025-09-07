@@ -14,4 +14,5 @@ public record InventoryResponseDTO(
         Long version,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
-) {}
+) {
+}

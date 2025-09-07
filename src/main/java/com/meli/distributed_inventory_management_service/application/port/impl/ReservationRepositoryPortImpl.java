@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.*;
+import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.STATUS_PENDING;
+import static com.meli.distributed_inventory_management_service.application.constants.ApplicationConstants.STATUS_RESERVED;
 
 @Component
 public class ReservationRepositoryPortImpl implements ReservationRepositoryPort {
